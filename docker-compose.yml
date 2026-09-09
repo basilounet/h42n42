@@ -1,0 +1,6 @@
+services:
+    ocsigen:
+        build: dockers/ocsigen
+        container_name: ocsigen
+        networks:
+            h42n42:
