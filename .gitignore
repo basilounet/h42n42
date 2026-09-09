@@ -1,0 +1,8 @@
+*.pdf
+ft_turing
+*.o
+*.cm[ixo]
+._[nb]cdi
+.idea
+._d
+.vscode
