@@ -2,5 +2,61 @@ services:
     ocsigen:
         build: dockers/ocsigen
         container_name: ocsigen
+        restart: always
+        init: true
         networks:
             h42n42:
+        volumes:
+            - sources:/home/opam/app/src
+            - static:/home/opam/app/static
+            - build:/home/opam/app/src/_build
+        healthcheck:
+            test: "exit 0"
+            interval: 5s
+            timeout: 1m
+            retries: 3
+
+
+    server:
+        build: dockers/server
+        container_name: server
+        restart: always
+        init: true
+        ports:
+            - "8080:8080"
+        networks:
+            h42n42:
+        volumes:
+            - static:/home/node/app/static
+            - build:/home/node/app/src/_build
+        healthcheck:
+            test: "exit 0"
+            interval: 5s
+            timeout: 1m
+            retries: 3
+
+
+volumes:
+    sources:
+        driver: local
+        driver_opts:
+            type: none
+            device: "src"
+            o: bind
+    build:
+        driver: local
+        driver_opts:
+            type: none
+            device: "src/_build"
+            o: bind
+    static:
+        driver: local
+        driver_opts:
+            type: none
+            device: "static"
+            o: bind
+
+
+networks:
+    h42n42:
+        driver: bridge
