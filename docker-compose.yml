@@ -44,11 +44,11 @@ volumes:
             device: "src"
             o: bind
     build:
-        driver: local
-        driver_opts:
-            type: none
-            device: "src/_build"
-            o: bind
+        # driver: local
+        # driver_opts:
+        #     type: none
+        #     device: 
+        #     o: bind
     static:
         driver: local
         driver_opts:
