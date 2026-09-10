@@ -1,7 +1,7 @@
 services:
-    ocsigen:
-        build: dockers/ocsigen
-        container_name: ocsigen
+    builder:
+        build: dockers/builder
+        container_name: builder
         restart: always
         init: true
         networks:
@@ -41,19 +41,19 @@ volumes:
         driver: local
         driver_opts:
             type: none
-            device: "src"
+            device: "volumes/sources"
             o: bind
     build:
-        # driver: local
-        # driver_opts:
-        #     type: none
-        #     device: 
-        #     o: bind
+        driver: local
+        driver_opts:
+            type: none
+            device: "volumes/sources/_build"
+            o: bind
     static:
         driver: local
         driver_opts:
             type: none
-            device: "static"
+            device: "volumes/static"
             o: bind
 
 

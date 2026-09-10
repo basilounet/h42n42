@@ -24,6 +24,5 @@ RUN     [   "mkdir", "-p", "/home/opam/app/static"  	]
 RUN     [   "mkdir", "-p", "/home/opam/app/src/_build" 	]
 
 
-#   SETUP H42N42
 ADD		[	"conf/run_builder.sh", "/home/opam/"		]
 CMD     [   "sh", "run_builder.sh"						]
