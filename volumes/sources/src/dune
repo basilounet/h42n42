@@ -3,5 +3,7 @@
  (modes js)
  (libraries
   js_of_ocaml
-  js_of_ocaml-tyxml)
- (preprocess (pps js_of_ocaml-ppx)))
+  js_of_ocaml-tyxml
+ )
+ (preprocess (pps js_of_ocaml-ppx))
+)
