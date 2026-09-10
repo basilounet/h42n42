@@ -13,7 +13,27 @@ type creet = {
     random: Random.State.t;
 }
 
-let make_circle (creet: creet) =
+let create_div (creet : creet) =
+    let diameter = creet.radius *. 2. in
+    let pos_to_string =
+        "; left: " ^ (fst creet.pos |> string_of_int) ^ "px" ^
+        "; top: "  ^ (snd creet.pos |> string_of_int) ^ "px"
+    in
+    let img_style =
+        Printf.sprintf
+          "position: absolute; width: %.1fpx; height: %.1fpx; \
+           border-radius: 50%%; object-fit: cover; background: %s%s;"
+          diameter diameter creet.color pos_to_string
+    in
+    div ~a:[a_class ["creet " ^ (string_of_int creet.id)]] [
+        img
+          ~src:"static/images/Creet.png"
+          ~alt:("creet " ^ string_of_int creet.id)
+          ~a:[a_style img_style]
+          ();
+    ]
+
+(* let make_circle (creet: creet) =
     Svg.circle ~a:[
         Svg.a_cx (100., None);
         Svg.a_cy (100., None);
@@ -21,21 +41,7 @@ let make_circle (creet: creet) =
         (* Svg.a_x (`X (fst pos) , None); *)
         (* Svg.a_y (`Y (snd pos), None); *)
         Svg.a_fill (`Color (creet.color, None));
-    ] []
-
-let create_div (creet: creet) =
-	let pos_to_string = "; left: " ^ (fst creet.pos |> string_of_int) ^ "px" ^
-						"; top: " ^  (snd creet.pos |> string_of_int) ^ "px" in
-    div ~a:[a_class ["creet " ^ (string_of_int creet.id)]] [
-        svg
-          ~a:[
-            Svg.a_viewBox (0., 0., 200., 200.);
-            Svg.a_style  @@ "position: absolute; width: 200px; height: 200px" ^ pos_to_string;
-          ]
-          [make_circle creet];
-    ]
-
-
+    ] [] *)
 
 let set_radius (radius: float) (creet: creet) : creet = 
 	{ creet with
