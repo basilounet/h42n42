@@ -5,9 +5,11 @@ RUN     [   "opam", "update"                			]
 RUN     [   "opam", "install",							\
 			"-y",										\
 			"dune",										\
+			"tyxml",									\
             "eliom",                        			\
             "conf-libev",                   			\
             "lwt",                          			\
+			"ocsipersist-sqlite",						\
             "js_of_ocaml",                  			\
             "js_of_ocaml-compiler",         			\
             "js_of_ocaml-ppx",              			\
