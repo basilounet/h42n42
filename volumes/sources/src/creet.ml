@@ -1,17 +1,18 @@
 open Js_of_ocaml
 open Js_of_ocaml_tyxml.Tyxml_js.Html
+open Vector
 
 module Svg = Js_of_ocaml_tyxml.Tyxml_js.Svg
 
 type creet = {
 	id: int;
-    radius: float;
-    pos: (int * int);
-    rotation: int;
-    color: string;
-    speed: int;
-    seed: int;
-    random: Random.State.t;
+	radius: float;
+	pos: vec2;
+	rotation: vec2;
+	color: string;
+	speed: int;
+	seed: int;
+	random: Random.State.t;
 }
 
 let create_div (creet : creet) =
@@ -38,7 +39,7 @@ let set_radius (radius: float) (creet: creet) : creet =
 		radius = radius;
 	}
 
-let set_pos (pos:(int * int)) (creet: creet): creet = 
+let set_pos (pos: vec2) (creet: creet): creet = 
 	{ creet with
 		pos = pos;
 	}
@@ -48,7 +49,7 @@ let set_color (color: string) (creet: creet) : creet =
 		color = color;
 	}
 
-let set_rotation (rotation: int) (creet: creet) : creet = 
+let set_rotation (rotation: vec2) (creet: creet) : creet = 
 	{ creet with
 		rotation = rotation mod 360;
 	}
@@ -64,9 +65,9 @@ let create (seed: int) (id: int) =
 		random = Random.get_state ();
 		id = id;
 		seed = seed + id;
-		rotation = 0;
+		rotation = vec2 (Float 1.) (Float 0.);
 		speed = 10;
 		radius = 50.;
-		pos = (0, 0);
-		color = "#831c1c"
+		pos = vec2 (Float 0.) (Float 0.);
+s		color = "#831c1c"
 	}
