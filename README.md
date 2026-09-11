@@ -23,6 +23,7 @@ jsp
 ## Resources
  - [Ocaml Introduction](https://courses.cs.cornell.edu/cs3110/2021sp/textbook/)
  - [Ocaml Manual](https://ocaml.org/manual/5.5/index.html)
+ - [Ocsigen](https://ocsigen.org/)
 
 ### IA uses
 AI was used on an ad hoc basis with the aim of learning the intricacies of this new language 
