@@ -15,17 +15,16 @@ type creet = {
 }
 
 let create_div (creet : creet) =
-    let diameter = creet.radius *. 2. in
+    let diameter = creet.radius *. 2. /. 10. in
     let pos_to_string =
-        "left: " ^ (fst creet.pos |> string_of_int) ^ "px; " ^
-        "top: "  ^ (snd creet.pos |> string_of_int) ^ "px; "
+        "left: " ^ (fst creet.pos |> string_of_int) ^ "vw; " ^
+        "top: "  ^ (snd creet.pos |> string_of_int) ^ "vh; "
     in
     let img_style =
         Printf.sprintf
-          "position: absolute; width: %.1fpx; height: %.1fpx; \
-           border-radius: 50%%; object-fit: cover; background: %s;\
+          "position: absolute; width: %.1fvw; height: %.1fvh; \
            transform:rotate(%ddeg); %s"
-          diameter diameter creet.color creet.rotation pos_to_string
+          (diameter *. 0.5) diameter creet.rotation pos_to_string
     in
     div ~a:[a_class ["creet " ^ (string_of_int creet.id)]] [
         img
@@ -33,16 +32,6 @@ let create_div (creet : creet) =
             ~alt:("creet " ^ string_of_int creet.id)
             ~a:[a_style img_style] ();
     ]
-
-(* let make_circle (creet: creet) =
-    Svg.circle ~a:[
-        Svg.a_cx (100., None);
-        Svg.a_cy (100., None);
-        Svg.a_r (creet.radius, None);
-        (* Svg.a_x (`X (fst pos) , None); *)
-        (* Svg.a_y (`Y (snd pos), None); *)
-        Svg.a_fill (`Color (creet.color, None));
-    ] [] *)
 
 let set_radius (radius: float) (creet: creet) : creet = 
 	{ creet with
@@ -61,7 +50,7 @@ let set_color (color: string) (creet: creet) : creet =
 
 let set_rotation (rotation: int) (creet: creet) : creet = 
 	{ creet with
-		rotation = Utils.clamp rotation 0 360;
+		rotation = rotation mod 360;
 	}
 
 let set_speed (speed: int) (creet: creet) : creet = 

@@ -17,7 +17,7 @@ let tags: tags_type = {
 let river =
 	let img_style = Printf.sprintf
 		"position: absolute; width: 10vw; height: 100vh; \
-		left: 1700px; top: 0px; object-fit: cover;"
+		right: 0px; top: 0px; overflow: hidden; object-fit: fill;"
 	in
  	div ~a:[a_class [ tags.river ]] [	
         img
@@ -29,7 +29,7 @@ let river =
 let hospital =
 	let img_style = Printf.sprintf
 		"position: absolute; width: 10vw; height: 100vh; \
-		left: 0px; top: 0px; object-fit: cover;"
+		left: 0px; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	div ~a:[a_class [ tags.hospital ]] [	
         img
@@ -41,7 +41,7 @@ let hospital =
 let grass =
 		let img_style = Printf.sprintf
 		"position: absolute; width: 80vw; height: 100vh; \
-		left: 200px; top: 0px; object-fit: cover;"
+		left: 10vw; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	div ~a:[a_class [ tags.grass ]] [	
         img
