@@ -4,25 +4,50 @@ open Js_of_ocaml_tyxml.Tyxml_js.Html
 
 type tags_type = {
 	river: string;
-	hospital: string
+	hospital: string;
+	grass: string;
 }
+
 let tags: tags_type = {
 	river = "RIVER";
-	hospital = "HOSPITAL"
+	hospital = "HOSPITAL";
+	grass = "GRASS";
 }
 
-
 let river =
-	div ~a:[a_class [ tags.river ]] [	
-		(*Element du div*)
+	let img_style = Printf.sprintf
+		"position: absolute; width: 10vw; height: 100vh; \
+		left: 1700px; top: 0px; object-fit: cover;"
+	in
+ 	div ~a:[a_class [ tags.river ]] [	
+        img
+        	~src:"static/images/River.png"
+			~alt:(tags.river)
+            ~a:[a_style img_style] ();
 	]
-
 
 let hospital =
+	let img_style = Printf.sprintf
+		"position: absolute; width: 10vw; height: 100vh; \
+		left: 0px; top: 0px; object-fit: cover;"
+	in
 	div ~a:[a_class [ tags.hospital ]] [	
-		(*Element du div*)
+        img
+        	~src:"static/images/Hospital.png"
+			~alt:(tags.hospital)
+            ~a:[a_style img_style] ();
 	]
 
+let grass =
+		let img_style = Printf.sprintf
+		"position: absolute; width: 80vw; height: 100vh; \
+		left: 200px; top: 0px; object-fit: cover;"
+	in
+	div ~a:[a_class [ tags.grass ]] [	
+        img
+        	~src:"static/images/Grass.png"
+			~alt:(tags.grass)
+            ~a:[a_style img_style] ();
+	]
 
-let background_elements = [river; hospital]
-
+let background_elements = [hospital; grass; river]

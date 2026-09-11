@@ -7,6 +7,7 @@ type creet = {
 	id: int;
     radius: float;
     pos: (int * int);
+    rotation: int;
     color: string;
     speed: int;
     seed: int;
@@ -16,21 +17,21 @@ type creet = {
 let create_div (creet : creet) =
     let diameter = creet.radius *. 2. in
     let pos_to_string =
-        "; left: " ^ (fst creet.pos |> string_of_int) ^ "px" ^
-        "; top: "  ^ (snd creet.pos |> string_of_int) ^ "px"
+        "left: " ^ (fst creet.pos |> string_of_int) ^ "px; " ^
+        "top: "  ^ (snd creet.pos |> string_of_int) ^ "px; "
     in
     let img_style =
         Printf.sprintf
           "position: absolute; width: %.1fpx; height: %.1fpx; \
-           border-radius: 50%%; object-fit: cover; background: %s%s;"
-          diameter diameter creet.color pos_to_string
+           border-radius: 50%%; object-fit: cover; background: %s;\
+           transform:rotate(%ddeg); %s"
+          diameter diameter creet.color creet.rotation pos_to_string
     in
     div ~a:[a_class ["creet " ^ (string_of_int creet.id)]] [
         img
-          ~src:"static/images/Creet.png"
-          ~alt:("creet " ^ string_of_int creet.id)
-          ~a:[a_style img_style]
-          ();
+            ~src:"static/images/Creet.png"
+            ~alt:("creet " ^ string_of_int creet.id)
+            ~a:[a_style img_style] ();
     ]
 
 (* let make_circle (creet: creet) =
@@ -52,10 +53,15 @@ let set_pos (pos:(int * int)) (creet: creet): creet =
 	{ creet with
 		pos = pos;
 	}
+
 let set_color (color: string) (creet: creet) : creet = 
-	Printf.printf "Color: %s\n" color;
 	{ creet with
 		color = color;
+	}
+
+let set_rotation (rotation: int) (creet: creet) : creet = 
+	{ creet with
+		rotation = Utils.clamp rotation 0 360;
 	}
 
 let set_speed (speed: int) (creet: creet) : creet = 
@@ -69,6 +75,7 @@ let create (seed: int) (id: int) =
 		random = Random.get_state ();
 		id = id;
 		seed = seed + id;
+		rotation = 0;
 		speed = 10;
 		radius = 50.;
 		pos = (0, 0);
