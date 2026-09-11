@@ -5,10 +5,27 @@ type vec2 = {
 }
 
 
-let vec2 (x: float) (y: float) : vec2 = {
+type vec_aux_t = Float of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | None
+
+
+let vec2_int (x: int) (y: int) : vec2 = {
+	x = Float.of_int x;
+	y = Float.of_int y
+}
+
+
+let vec2_float (x: float) (y: float) : vec2 = {
 	x = x;
 	y = y
 }
+
+
+let vec2 (x: vec_aux_t) (y: vec_aux_t) : vec2 = match (x, y) with
+	| Float x, Float y		-> vec2_float x y
+	| Int x, Int y			-> vec2_int x y
+	| Float_Tuple x, _		-> vec2_float (fst x) (snd x)
+	| Int_Tuple x, _		-> vec2_int (fst x) (snd x)
+	| _, _					-> vec2_float 0. 0.
 
 
 let add (v: vec2) (u: vec2) : vec2 = {
@@ -67,9 +84,15 @@ let cross_product (v: vec2) (u: vec2): float =
 	v.x *. u.x +. v.y *. u.y
 
 
-let angle (v: vec2): float =
+let to_angle (v: vec2): float =
 	atan2 v.x v.y
 	|> Float.mul (Float.pi /. 180.)
+
+
+let from_angle (alpha: float): vec2 = {
+	x = cos(alpha);
+	y = sin(alpha)
+}
 
 
 let (++) = add
