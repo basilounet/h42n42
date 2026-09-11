@@ -86,12 +86,16 @@ let cross_product (v: vec2) (u: vec2): float =
 
 let to_angle (v: vec2): float =
 	atan2 v.x v.y
-	|> Float.mul (Float.pi /. 180.)
+	|> Float.mul (180. /. Float.pi)
 
 
-let from_angle (alpha: float): vec2 = {
-	x = cos(alpha);
-	y = sin(alpha)
+let from_angle (degrees: float): vec2 = 
+	let radians = -.degrees *. (Float.pi /. 180.) in
+	(* vec2 direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians)); *)
+	Printf.printf "from: %.1fdeg, rad: %.1f, x: %.1f, y: %.1f\n" degrees radians (cos radians) (sin radians);
+	{
+	x = cos radians;
+	y = sin radians
 }
 
 

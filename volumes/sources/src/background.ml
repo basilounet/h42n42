@@ -21,7 +21,7 @@ let river =
 	in
  	div ~a:[a_class [ tags.river ]] [	
         img
-        	~src:"static/images/River.png"
+        	~src:"static/images/river.png"
 			~alt:(tags.river)
             ~a:[a_style img_style] ();
 	]
@@ -33,21 +33,21 @@ let hospital =
 	in
 	div ~a:[a_class [ tags.hospital ]] [	
         img
-        	~src:"static/images/Hospital.png"
+        	~src:"static/images/hospital.png"
 			~alt:(tags.hospital)
             ~a:[a_style img_style] ();
 	]
 
 let grass =
 		let img_style = Printf.sprintf
-		"position: absolute; width: 80vw; height: 100vh; \
-		left: 10vw; top: 0px; overflow: hidden; object-fit: fill;"
+		"position: absolute; width: 100vw; height: 100vh; \
+		left: 0vw; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	div ~a:[a_class [ tags.grass ]] [	
         img
-        	~src:"static/images/Grass.png"
+        	~src:"static/images/grass.png"
 			~alt:(tags.grass)
             ~a:[a_style img_style] ();
 	]
 
-let background_elements = [hospital; grass; river]
+let background_elements = [grass; hospital; river]
