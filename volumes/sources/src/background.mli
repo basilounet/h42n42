@@ -1,3 +1,6 @@
+open Js_of_ocaml
+open Vector
+
 
 type tags_type = {
 	river: string;
@@ -7,4 +10,6 @@ type tags_type = {
 
 val tags: tags_type
 
-val background_elements: ([> Html_types.div ] Js_of_ocaml_tyxml.Tyxml_js.Html.elt) list
+val create : #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t -> vec2
+
+(* val grass_node : #Js_of_ocaml.Dom_html.imageElement Js_of_ocaml.Js.t option ref *)
