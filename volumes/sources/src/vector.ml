@@ -46,9 +46,10 @@ let scale (a: float) (v: vec2) : vec2 = {
 }
 
 
-let rotate (alpha: float) (v: vec2) : vec2 = {
-	x = v.x *. cos(alpha) -. v.x *. sin(alpha);
-	y = v.y *. cos(alpha) +. v.x *. sin(alpha)
+let rotate (alpha: float) (v: vec2) : vec2 =
+	let radians = alpha *. (Float.pi /. 180.) in {
+	x = v.x *. cos(radians) -. v.y *. sin(radians);
+	y = v.x *. sin(radians) +. v.y *. cos(radians)
 }
 
 
@@ -90,8 +91,6 @@ let to_angle (v: vec2): float =
 
 let from_angle (degrees: float): vec2 = 
 	let radians = degrees *. (Float.pi /. 180.) in
-	(* vec2 direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians)); *)
-	(* Printf.printf "from: %.1fdeg, rad: %.1f, x: %.1f, y: %.1f\n" degrees radians (cos radians) (sin radians); *)
 	{
 	x = cos radians;
 	y = sin radians
