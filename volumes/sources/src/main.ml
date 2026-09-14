@@ -22,16 +22,12 @@ let generate_creet (id: int) (pos: vec2) =
 
 let rec creet_loop body (creet : Creet.creet) : unit Lwt.t =
 	ignore @@ Creet.update body creet;
-	Lwt.bind (Lwt_js.sleep 0.01) (fun () ->
-	creet_loop body (Creet.move creet))
+	Lwt.bind (Lwt_js.sleep 0.02) (fun () ->
+		creet_loop body (Creet.move creet))
 
 let setup_click_listener target (w_size:vec2) =
 	Lwt.async (fun () ->
     Lwt_js_events.clicks target (fun ev _handler ->
-		Printf.printf "x:%d, y: %d\n" (ev##.clientX |> js_to_int) (ev##.clientY |> js_to_int);
-		Printf.printf "w:%f, h: %f\n" (w_size.x) (w_size.y);
-		(* Printf.printf "test:%d\n" (target##.classList##.length |> js_to_int); *)
-
 		let pos = vec2
 			(Int (ev##.clientX |> js_to_int))
 			(Int (ev##.clientY |> js_to_int)) in

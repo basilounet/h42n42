@@ -1,5 +1,6 @@
 open Js_of_ocaml
 open Js_of_ocaml_tyxml.Tyxml_js.Html
+open Js_of_ocaml_lwt
 open Vector
 
 
@@ -21,7 +22,7 @@ let river =
 		right: 0px; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	img
-		~src:"static/images/river.png"
+		~src:"static/images/river/river_0.png"
 		~alt:(tags.river)
 		~a:[a_class [tags.river]; 
 			a_draggable false;
@@ -47,16 +48,30 @@ let grass =
 		left: 0vw; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	img
-		~src:"static/images/grass.png"
+		~src:"static/images/grass/grass_0.png"
 		~alt:(tags.grass)
 		~a:[a_class [tags.grass]; 
 			a_draggable false;
 			a_style img_style]
 		()
 
+let rec animation (anim_name: string) (anim_curr: int) (anim_max: int) (anim_time: float) node : unit Lwt.t =
+    node##.src := Js.string @@ "static/images/" ^ anim_name ^ "_" ^ (string_of_int anim_curr) ^ ".png";
+	match anim_curr with
+	| i when i >= anim_max -> 
+		Lwt.bind (Lwt_js.sleep 20.) 
+		(fun () -> animation anim_name 0 anim_max anim_time node)
+	| _ ->
+		Lwt.bind (Lwt_js.sleep anim_time) 
+		(fun () -> animation anim_name (anim_curr + 1) anim_max anim_time node)
+
 let create body : vec2 = 
 	let grass_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img grass in
 	Dom.appendChild body grass_node;
+	Lwt.async (fun () -> animation "grass/grass" 0 83 0.095 grass_node);
+	let river_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img river in
+	Dom.appendChild body river_node;
+	Lwt.async (fun () -> animation "river/river" 0 45 0.115 river_node);
 	Dom.appendChild body @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img river;
 	Dom.appendChild body @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img hospital;
 	vec2 (Int (grass_node##.width)) (Int (grass_node##.height))

@@ -90,7 +90,7 @@ let create (seed: int) (id: int) =
 		state = Healthy;
 		seed = seed + id;
 		direction = vec2 (Float 1.) (Float 0.);
-		speed = 0.12;
+		speed = 2.5;
 		radius = 1.;
 		pos = vec2 (Float 0.) (Float 0.);
 		color = "#831c1c";
@@ -98,8 +98,8 @@ let create (seed: int) (id: int) =
 
 let move (creet: creet) : creet =
 	(* TODO : da heck is this rotate *)
-	let new_direction = to_angle creet.direction |> ( +. ) 0.8 |> from_angle in
-	(* let new_direction = rotate 0.1 creet.direction in *)
+	(* let new_direction = to_angle creet.direction |> ( +. ) 0.8 |> from_angle in *)
+	let new_direction = rotate 0.9 creet.direction in
 	(* let new_direction = creet.direction in *)
 	{ creet with
 		direction = new_direction;
