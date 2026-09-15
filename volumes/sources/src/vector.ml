@@ -5,7 +5,7 @@ type vec2 = {
 }
 
 
-type vec_aux_t = Float of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | None
+type vec_aux_t = Float of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | Vec_None
 
 
 let vec2_int (x: int) (y: int) : vec2 = {
@@ -23,8 +23,8 @@ let vec2_float (x: float) (y: float) : vec2 = {
 let vec2 (x: vec_aux_t) (y: vec_aux_t) : vec2 = match (x, y) with
 	| Float x, Float y		-> vec2_float x y
 	| Int x, Int y			-> vec2_int x y
-	| Float_Tuple x, _		-> vec2_float (fst x) (snd x)
-	| Int_Tuple x, _		-> vec2_int (fst x) (snd x)
+	| Float_Tuple xy, _		-> vec2_float (fst xy) (snd xy)
+	| Int_Tuple xy, _		-> vec2_int (fst xy) (snd xy)
 	| _, _					-> vec2_float 0. 0.
 
 

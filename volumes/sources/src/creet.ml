@@ -101,7 +101,9 @@ let move (creet: creet) : creet =
 	(* let new_direction = to_angle creet.direction |> ( +. ) 0.8 |> from_angle in *)
 	let new_direction = rotate 0.9 creet.direction in
 	(* let new_direction = creet.direction in *)
-	{ creet with
+  match Menus.is_pause () with
+	| true -> creet
+  | false -> { creet with
 		direction = new_direction;
 		pos = creet.pos ++ (creet.speed >> new_direction)
 	}

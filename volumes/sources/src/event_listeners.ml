@@ -1,6 +1,7 @@
 open Vector
 open Js_of_ocaml
 open Js_of_ocaml_lwt
+open Js_of_ocaml_tyxml.Tyxml_js.Html
 
 
 let js_to_int num = num |> Js.float_of_number |> int_of_float
@@ -20,12 +21,22 @@ let rec creet_loop body (creet : Creet.creet) : unit Lwt.t =
 let setup_click target (w_size:vec2) =
 	Lwt.async (fun () ->
 		Lwt_js_events.clicks target (fun ev _handler ->
-		let pos = vec2
-			(Int (ev##.clientX |> js_to_int))
-			(Int (ev##.clientY |> js_to_int)) in
+		(* let pos: vec2 = vec2 (Int_Tuple (Dom_html.elementClientPosition target)) None in *)
+		let pos = vec2 (Int (ev##.clientX |> js_to_int)) (Int (ev##.clientY |> js_to_int)) in
+		(* Printf.printf "pos x: %f, y: %f\n" pos.x pos.y; *)
 		Lwt.async (fun () -> generate_creet (Utils.create_id ()) pos |> creet_loop target);
-   		Lwt.return_unit
-	)
-  );
-  ()
+	 	Lwt.return_unit
+	));
+	()
 
+let setup_keypresses target =
+	Lwt.async (fun () -> Lwt_js_events.keypresses target (fun ev _handler ->
+		match ev##.keyCode with
+		(* Enter or Space *)
+		| 13 | 32 -> begin match !Menus.close_modal with
+			| Some close_modal -> close_modal ()
+			| None -> Menus.show_modal target "Pause Menu" [p [txt "placeholder."]] "Go back to game"
+		end; Lwt.return_unit
+		| key -> Printf.printf "keyCode: %d\n" key; Lwt.return_unit
+	));
+	()
