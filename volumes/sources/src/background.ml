@@ -35,7 +35,7 @@ let hospital =
 		left: 0px; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	img
-		~src:"static/images/hospital.png"
+		~src:"static/images/hospital/hospitals.png"
 		~alt:(tags.hospital)
 		~a:[a_class [tags.hospital]; 
 			a_draggable false;
