@@ -5,7 +5,7 @@ type vec2 = {
 }
 
 
-type vec_aux_t = Float of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | Vec_None
+type vec_aux_t = Float_t of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | Vec_None
 val vec2: 			vec_aux_t	->	vec_aux_t	-> vec2
 
 

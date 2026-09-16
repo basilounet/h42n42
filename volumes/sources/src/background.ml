@@ -54,14 +54,14 @@ let rec animation (anim_name: string) (anim_curr: int) (anim_max: int) (anim_tim
 let grass_node = ref None
 
 let get_wsize () : vec2 = match !grass_node with
-  | None      -> vec2 (Int (0))            (Int (0))
-  | Some node -> vec2 (Int (node##.width)) (Int (node##.height))
+	| None		-> vec2 (Int (0))            (Int (0))
+	| Some node	-> vec2 (Int (node##.width)) (Int (node##.height))
 
 let create body : vec2 = 
 	grass_node := Some (Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img grass);
-  match !grass_node with
-  | None -> get_wsize ()
-  | Some node ->
+	match !grass_node with
+	| None -> get_wsize ()
+	| Some node ->
 	Dom.appendChild body node;
 	Lwt.async (fun () -> animation "backgrounds/grass/grass" 0 83 0.095 node);
 	let river_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img river in

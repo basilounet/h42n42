@@ -4,8 +4,8 @@ open Vector
 
 
 (* Constant variables *)
-let width				()	= 1904.
-let height				()	= 938.
+let width				()	= (Background.get_wsize ()).x
+let height				()	= (Background.get_wsize ()).y
 let window_margin		()	= 0.02
 let bound_panic			()	= 0.5
 let eyesight_range		()	= 10.

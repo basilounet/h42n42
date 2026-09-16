@@ -115,6 +115,6 @@ let debug_creet (creet: t): unit =
 
 
 let advance (creet: t): t = 
-	debug_creet creet;
+	(* debug_creet creet; *)
 	creet.pos <- creet.direction |> stretch creet.speed |> add creet.pos;
 	creet
