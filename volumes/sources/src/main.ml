@@ -10,5 +10,6 @@ let () =
 		let w_size = Background.create body in
 		Event_listeners.setup_click body w_size;
 		Event_listeners.setup_keypresses body;
+    Menus.pause_menu body;
 		Js._true
 	)

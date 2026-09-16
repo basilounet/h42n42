@@ -22,7 +22,7 @@ let river =
 		right: 0px; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	img
-		~src:"static/images/river/river_0.png"
+		~src:"static/images/backgrounds/river/river_0.png"
 		~alt:(tags.river)
 		~a:[a_class [tags.river]; 
 			a_draggable false;
@@ -35,7 +35,7 @@ let hospital =
 		left: 0px; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	img
-		~src:"static/images/hospital/hospitals.png"
+		~src:"static/images/backgrounds/hospital/hospitals.png"
 		~alt:(tags.hospital)
 		~a:[a_class [tags.hospital]; 
 			a_draggable false;
@@ -48,7 +48,7 @@ let grass =
 		left: 0vw; top: 0px; overflow: hidden; object-fit: fill;"
 	in
 	img
-		~src:"static/images/grass/grass_0.png"
+		~src:"static/images/backgrounds/grass/grass_0.png"
 		~alt:(tags.grass)
 		~a:[a_class [tags.grass]; 
 			a_draggable false;
@@ -65,13 +65,22 @@ let rec animation (anim_name: string) (anim_curr: int) (anim_max: int) (anim_tim
 		Lwt.bind (Lwt_js.sleep anim_time) 
 		(fun () -> animation anim_name (anim_curr + 1) anim_max anim_time node)
 
+let grass_node = ref None
+
+let get_wsize () : vec2 = match !grass_node with
+  | None      -> vec2 (Int (0))            (Int (0))
+  | Some node -> vec2 (Int (node##.width)) (Int (node##.height))
+
 let create body : vec2 = 
-	let grass_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img grass in
-	Dom.appendChild body grass_node;
-	Lwt.async (fun () -> animation "grass/grass" 0 83 0.095 grass_node);
+	grass_node := Some (Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img grass);
+  match !grass_node with
+  | None -> get_wsize ()
+  | Some node ->
+	Dom.appendChild body node;
+	Lwt.async (fun () -> animation "backgrounds/grass/grass" 0 83 0.095 node);
 	let river_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img river in
 	Dom.appendChild body river_node;
-	Lwt.async (fun () -> animation "river/river" 0 45 0.115 river_node);
+	Lwt.async (fun () -> animation "backgrounds/river/river" 0 45 0.115 river_node);
 	Dom.appendChild body @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img river;
 	Dom.appendChild body @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img hospital;
-	vec2 (Int (grass_node##.width)) (Int (grass_node##.height))
+	get_wsize ()

@@ -21,15 +21,15 @@ type creet = {
 let style_string (creet: creet) : string = 
 	let diameter = creet.radius *. 2. in
 	Printf.sprintf
-		"user-select: none; position: absolute; left: %.1fpx; top: %.1fpx;
-		width: %.1fvw; height: %.1fvw; \
-		transform: translate(-50%%, -50%%) rotate(%.1fdeg)"
+		"position: absolute; left: %.1fpx; top: %.1fpx;
+		 width: %.1fvw; height: %.1fvw; user-select: none; \
+		 transform: translate(-50%%, -50%%) rotate(%.1fdeg)"
 		creet.pos.x creet.pos.y diameter diameter (to_angle creet.direction +. 90.)
 		
 
 let create_img (creet : creet) =
     img
-        ~src:"static/images/creet_healthy.png"
+        ~src:"static/images/creets/creet_healthy.png"
         ~alt:(string_of_int creet.id)
         ~a:[a_class ["creet " ^ (string_of_int creet.id)]; 
 			a_draggable false;
@@ -97,7 +97,6 @@ let create (seed: int) (id: int) =
 	}
 
 let move (creet: creet) : creet =
-	(* TODO : da heck is this rotate *)
 	(* let new_direction = to_angle creet.direction |> ( +. ) 0.8 |> from_angle in *)
 	let new_direction = rotate 0.9 creet.direction in
 	(* let new_direction = creet.direction in *)

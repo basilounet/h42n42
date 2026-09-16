@@ -12,4 +12,4 @@ val tags: tags_type
 
 val create : #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t -> vec2
 
-(* val grass_node : #Js_of_ocaml.Dom_html.imageElement Js_of_ocaml.Js.t option ref *)
+val get_wsize: unit -> vec2

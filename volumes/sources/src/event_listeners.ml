@@ -21,6 +21,9 @@ let rec creet_loop body (creet : Creet.creet) : unit Lwt.t =
 let setup_click target (w_size:vec2) =
 	Lwt.async (fun () ->
 		Lwt_js_events.clicks target (fun ev _handler ->
+    match Menus.is_pause () with
+    | true  -> Lwt.return_unit
+    | false ->
 		(* let pos: vec2 = vec2 (Int_Tuple (Dom_html.elementClientPosition target)) None in *)
 		let pos = vec2 (Int (ev##.clientX |> js_to_int)) (Int (ev##.clientY |> js_to_int)) in
 		(* Printf.printf "pos x: %f, y: %f\n" pos.x pos.y; *)
@@ -35,7 +38,7 @@ let setup_keypresses target =
 		(* Enter or Space *)
 		| 13 | 32 -> begin match !Menus.close_modal with
 			| Some close_modal -> close_modal ()
-			| None -> Menus.show_modal target "Pause Menu" [p [txt "placeholder."]] "Go back to game"
+			| None -> Menus.pause_menu target 
 		end; Lwt.return_unit
 		| key -> Printf.printf "keyCode: %d\n" key; Lwt.return_unit
 	));
