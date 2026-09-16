@@ -33,3 +33,5 @@ for us, and never with the intention that it should code on our behalf.
 
 ---
 ## Bonuses
+### Pause layout
+![img](volumes/static/images/readme/pause_layout.png)

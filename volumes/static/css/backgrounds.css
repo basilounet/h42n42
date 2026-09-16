@@ -1,0 +1,26 @@
+.RIVER {
+	position: absolute;
+	top: 0; right: 0;
+	width: 10vw; height: 100vh;
+	user-select: none;
+	overflow: hidden;
+	object-fit: fill
+}
+
+.HOSPITAL {
+	position: absolute;
+	top: 0px; left: 0px;
+	width: 10vw; height: 100vh;
+	user-select: none;
+	overflow: hidden;
+	object-fit: fill
+}
+
+.GRASS {
+	position: absolute;
+	top: 0px; left: 0vw;
+	width: 100vw; height: 100vh;
+	user-select: none;
+	overflow: hidden;
+	object-fit: fill
+}

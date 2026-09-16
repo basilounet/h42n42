@@ -1,0 +1,90 @@
+.pause_overlay {
+	position: fixed;
+	top: 0;	left: 0;
+	width: 100vw; height: 100vh;
+	background: rgba(0,0,0,0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000
+}
+
+.pause_title {
+	position: absolute;
+	top: -25vh; left: 0vw;
+	width: 30vw; height: 20vh;
+	background-image: url('/static/images/UI/banners/pause_title.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}
+
+.pause_bg {
+	position: absolute;
+	top: 65vh; left: 50vw;
+	width: 30vw; height: 70vh;
+	background-image: url('/static/images/UI/pause_1.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.pause_button {
+	position: absolute;
+	top: 20vh; left: 50%;
+	width: 15vw; height: 5vh;
+	background: none;
+	border: none;
+	cursor: url("/static/images/UI/cursors/Gauntlet_Magic.png"), auto;
+	background-image: url('/static/images/UI/buttons/button_4.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+	color: #000000
+}
+
+.pause_button:hover {
+	background-image: url('/static/images/UI/buttons/button_selected_4.png');
+}
+
+.pause_button:active {
+	background-image: url('/static/images/UI/buttons/button_pressed_4.png');
+}
+
+.settings_title {
+	position: absolute;
+	top: -28vh; left: -32vw;
+	width: 20vw; height: 10vh;
+	background-image: url('/static/images/UI/banners/settings_title.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(25%)
+}
+
+.settings {
+	position: absolute;
+	top: -18vh; left: -32vw;
+	width: 30vw; height: 85vh;
+	background-image: url('/static/images/UI/statistics_2.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}
+
+.stats_title {
+	position: absolute;
+	top: -28vh; left: 32vw;
+	width: 20vw; height: 10vh;
+	background-image: url('/static/images/UI/banners/stats_title.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(25%)
+}
+
+.stats {
+	position: absolute;
+	top: -18vh; left: 32vw;
+	width: 30vw; height: 85vh;
+	background-image: url('/static/images/UI/statistics_2.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}

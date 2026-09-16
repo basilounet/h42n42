@@ -1,14 +1,8 @@
-.button_style {
-	position: absolute;
-	top: 10vh;
-	left: 50%;
-	width: 15cvw;
-	height: 5vh;
-	background: none;
-	border: none;
-	cursor: pointer;
-	background-image: url('../images/UI/button_normal.png');
-	background-repeat: no-repeat;
-	background-size: 100% 100%;
-	transform: translate(-50%, -50%)
+@import url("menus.css");
+@import url("backgrounds.css");
+
+html {
+	cursor: url("/static/images/UI/cursors/Gauntlet.png"), auto;
+	image-rendering: crisp-edges;
 }
+
