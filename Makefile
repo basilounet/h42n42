@@ -14,3 +14,7 @@ clean:
 
 re: 
 	@make --no-print-directory down && make --no-print-directory up
+
+
+logs:
+	@docker compose logs builder -f

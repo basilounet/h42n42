@@ -21,7 +21,7 @@ let vec2_float (x: float) (y: float) : vec2 = {
 
 
 let vec2 (x: vec_aux_t) (y: vec_aux_t) : vec2 = match (x, y) with
-	| Float x, Float y		-> vec2_float x y
+	| Float_t x, Float_t y		-> vec2_float x y
 	| Int x, Int y			-> vec2_int x y
 	| Float_Tuple xy, _		-> vec2_float (fst xy) (snd xy)
 	| Int_Tuple xy, _		-> vec2_int (fst xy) (snd xy)
@@ -54,16 +54,15 @@ let rotate (alpha: float) (v: vec2) : vec2 =
 
 
 let length2 (v: vec2): float =
-	v.x *. v.x +. v.y *. v .y
+	v.x *. v.x +. v.y *. v.y
 
 
-let length (v: vec2): float = v
-	|> length2
-	|> sqrt
+let length (v: vec2): float = 
+	Float.hypot v.x v.y
 
 
 let normalise (v: vec2) : vec2 = v
-	|> scale (1. /. length v)
+	|> scale (1. /. (length v))
 
 
 let stretch (len: float) (v: vec2) : vec2 = v

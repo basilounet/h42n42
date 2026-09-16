@@ -1,3 +1,4 @@
+open Types
 open Vector
 open Js_of_ocaml
 open Js_of_ocaml_lwt
@@ -13,10 +14,12 @@ let generate_creet (id: int) (pos: vec2) =
 	|> Creet.set_radius		@@ 1.
 	|> Creet.set_direction	@@ (from_angle 0.)
 
-let rec creet_loop body (creet : Creet.creet) : unit Lwt.t =
+
+let rec creet_loop body (creet : creet) : unit Lwt.t =
 	ignore @@ Creet.update body creet;
 	Lwt.bind (Lwt_js.sleep 0.02) (fun () ->
 		creet_loop body (Creet.move creet))
+
 
 let setup_click target (w_size:vec2) =
 	Lwt.async (fun () ->
@@ -28,7 +31,7 @@ let setup_click target (w_size:vec2) =
 		let pos = vec2 (Int (ev##.clientX |> js_to_int)) (Int (ev##.clientY |> js_to_int)) in
 		(* Printf.printf "pos x: %f, y: %f\n" pos.x pos.y; *)
 		Lwt.async (fun () -> generate_creet (Utils.create_id ()) pos |> creet_loop target);
-	 	Lwt.return_unit
+		Lwt.return_unit
 	));
 	()
 

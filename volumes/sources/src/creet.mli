@@ -1,33 +1,30 @@
 open Vector
 open Js_of_ocaml
 
+
 type creet_state = Healthy | Sick | Mean | Berserk
 
-type creet = {
-	id:			int;
-    state:      creet_state;
-	radius: 	float;
-	pos:		vec2;
-	direction:	vec2;
-	color:		string;
-	speed:		float;
-	seed:		int;
-	random:		Random.State.t;
+
+type t = {
+	id:					int;
+	state:				creet_state;
+	mutable radius:		float;
+	mutable pos:		vec2;
+	mutable direction:	vec2;
+	mutable speed:		float;
+	seed:				int;
+	random:				Random.State.t;
 }
 
-val style_string : creet -> string
 
-val update      : #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t -> creet -> creet
+val style_string 	: t													-> string
+val update			: #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t	-> t	-> t
 
-
-val set_state   	: creet_state   -> creet  -> creet 
-val set_radius		: float         -> creet  -> creet 
-val set_pos   		: vec2   	    -> creet  -> creet 
-val set_direction	: vec2		    -> creet  -> creet 
-val set_color 		: string        -> creet  -> creet
-val set_speed 		: float         -> creet  -> creet
-
-
-val create  : int -> int -> creet
-
-val move    : creet      -> creet
+val create  		: int										-> int	-> t
+val set_state   	: creet_state								-> t	-> t
+val set_radius		: float      								-> t	-> t
+val set_pos			: vec2   	 								-> t	-> t
+val set_direction	: vec2		 								-> t	-> t
+val set_speed 		: float      								-> t	-> t
+val advance			: t													-> t
+val debug_creet		: t													-> unit
