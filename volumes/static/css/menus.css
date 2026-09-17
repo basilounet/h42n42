@@ -1,7 +1,12 @@
+@font-face {
+  font-family: exca; /* set name */
+  src: url("/static/fonts/Excalifont-Regular.woff2"); /* url of the font */
+}
+
 .pause_overlay {
 	position: fixed;
 	top: 0;	left: 0;
-	width: 100vw; height: 100vh;
+	width: 100%; height: 100%;
 	background: rgba(0,0,0,0.6);
 	display: flex;
 	align-items: center;
@@ -11,16 +16,17 @@
 
 .pause_title {
 	position: absolute;
-	top: -25vh; left: 0vw;
+	top: 10vh; left: 50%;
 	width: 30vw; height: 20vh;
 	background-image: url('/static/images/UI/banners/pause_title.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
 }
 
 .pause_bg {
 	position: absolute;
-	top: 65vh; left: 50vw;
+	top: 60vh; left: 50%;
 	width: 30vw; height: 70vh;
 	background-image: url('/static/images/UI/pause_1.png');
 	background-repeat: no-repeat;
@@ -31,16 +37,18 @@
 
 .pause_button {
 	position: absolute;
-	top: 20vh; left: 50%;
-	width: 15vw; height: 5vh;
+	top: 50vh; left: 50%;
+	width: 15vw; height: 10vh;
 	background: none;
 	border: none;
-	cursor: url("/static/images/UI/cursors/Gauntlet_Magic.png"), auto;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
 	background-image: url('/static/images/UI/buttons/button_4.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	transform: translate(-50%, -50%);
-	color: #000000
+	color: #000000;
+	font-family: exca;
+	font-size: 1.5vw;
 }
 
 .pause_button:hover {
@@ -53,38 +61,134 @@
 
 .settings_title {
 	position: absolute;
-	top: -28vh; left: -32vw;
+	top: 5vh; left: 17vw;
 	width: 20vw; height: 10vh;
 	background-image: url('/static/images/UI/banners/settings_title.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
-	transform: translate(25%)
+	transform: translate(-50%, -50%);
 }
 
 .settings {
 	position: absolute;
-	top: -18vh; left: -32vw;
+	top: 52vh; left: 17vw;
 	width: 30vw; height: 85vh;
 	background-image: url('/static/images/UI/statistics_2.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
 }
 
 .stats_title {
 	position: absolute;
-	top: -28vh; left: 32vw;
+	top: 5vh; left: 83vw;
 	width: 20vw; height: 10vh;
 	background-image: url('/static/images/UI/banners/stats_title.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
-	transform: translate(25%)
+	transform: translate(-50%, -50%);
 }
 
 .stats {
 	position: absolute;
-	top: -18vh; left: 32vw;
+	top: 52vh; left: 83vw;
 	width: 30vw; height: 85vh;
 	background-image: url('/static/images/UI/statistics_2.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+}
+
+.text {
+	position: absolute;
+	top: 64vh; left: 50vw;
+	width: 10vw; height: 3vh;
+	font-size: 1.5vw;
+	transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.difficulty {
+	position: absolute;
+	top: 82vh; left: 50vw;
+	width: 3vw; height: 4.5vh;
+	background: none;
+	border: none;
+	background-image: url('/static/images/UI/buttons/checkbox_off.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+	color: #000000;
+	font-family: exca;
+	font-size: 1.5vw;
+}
+
+.difficulty:active {
+	background-image: url('/static/images/UI/buttons/checkbox_on.png');
+}
+
+.slider {
+	position: absolute;
+	top: 50vh; left: 20vw;
+	width: 15vw; height: 10vh;
+	background: none;
+	border: none;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+	transform: translate(-50%, -50%);
+	font-size: 1.5vw;
+}
+
+.slider_label {
+	position: absolute;
+	top: 2vh; left: -3.5vw;
+	width: 3.5vw; height: 7vh;
+	background-image: url('/static/images/UI/icons/volume.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+}
+
+input[type="range"] {
+	/* removing default appearance */
+	-webkit-appearance: none;
+	appearance: none; 
+	/* creating a custom design */
+	position: relative;
+	width: 15vw; height: 8vh;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+	outline: none;
+	background: no-repeat url('/static/images/UI/sliders/slider_box.png');
+	background-size: 100% 100%;
+	background-color: #00FF0000;
+}
+
+/* Thumb: webkit */
+input[type="range"]::-webkit-slider-thumb {
+	/* removing default appearance */
+	-webkit-appearance: none;
+	appearance: none; 
+	/* creating a custom design */
+	height: 2vw; width: 2vw;
+	background: no-repeat center/250% url('/static/images/UI/sliders/slider_button.png');
+	background-color: #00000000;
+	border: none;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+	/* transition: .2s ease-in-out; */
+}
+
+/* Thumb: Firefox */
+input[type="range"]::-moz-range-thumb {
+	height: 2vw; width: 2vw;
+	background: no-repeat center/250% url('/static/images/UI/sliders/slider_button.png');
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+	background-color: #FF000000;
+	border: none;
+	/* transition: 1.2s ease-in-out; */
+}
+
+input[type="range"]::-moz-range-track {
+  width: 10vw; height: 3vh;
+
+  /* background: #ececec83; */
+  border-radius: 16px;
 }

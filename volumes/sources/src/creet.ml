@@ -7,12 +7,11 @@ module Svg = Js_of_ocaml_tyxml.Tyxml_js.Svg
 
 
 type creet_state = Healthy | Sick | Mean | Berserk
-let creete_state_str (state: creet_state) = match state with
-	| state when state = Healthy	-> "healthy"
-	| state when state = Sick		-> "sick"
-	| state when state = Mean		-> "mean"
-	| state when state = Berserk	-> "Berserk"
-	| _ 							-> "What?"
+let str_of_state = function
+	| Healthy	-> "healthy"
+	| Sick		-> "sick"
+	| Mean		-> "mean"
+	| Berserk	-> "Berserk"
 
 
 type t = {
@@ -105,7 +104,7 @@ let create (seed: int) (id: int) =
 let debug_creet (creet: t): unit =
 	Printf.printf "creet %d (%s) pos:(%.2f; %.2f) radius: %.2f dir: (%.2f; %.2f) speed: %.2f\n"
 		(creet.id)
-		(creet.state |> creete_state_str)
+		(creet.state |> str_of_state)
 		(creet.pos.x)
 		(creet.pos.y)
 		(creet.radius)

@@ -15,8 +15,8 @@ RUN     [   "opam", "install",							\
             "js_of_ocaml-lwt",              			\
             "js_of_ocaml-tyxml",            			\
             "js_of_ocaml-toplevel",         			\
-            "js_of_ocaml-ppx_deriving_json" 			\
-			"ocaml-lsp-server"							\
+            "js_of_ocaml-ppx_deriving_json",			\
+			"ocaml-lsp-server",							\
 			"ocamlformat"								]
 RUN			opam env | sh
 

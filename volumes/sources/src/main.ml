@@ -31,15 +31,17 @@ let spawn_creets (num: int): Troop.t =
 
 
 let () =
-	let troop = spawn_creets 10 in
+	(* let troop = spawn_creets 0 in *)
 	Dom_html.window##.onload := Dom_html.handler (fun _ ->
 		let body = Dom_html.document##.body in
 		ignore @@ Background.create body;
 		(* Mutex.lock !Behaviour.start_mutex; *)
-		Hashtbl.to_seq_values troop.map
-		|> Seq.iter (fun (creet: Creet.t) -> Behaviour.ready creet troop body);
+		(* Hashtbl.to_seq_values troop.map *)
+		(* |> Seq.iter (fun (creet: Creet.t) -> Behaviour.ready creet troop body); *)
 		(* Mutex.unlock !Behaviour.start_mutex; *)
 		(* Event_listeners.setup_click body w_size; *)
+		Event_listeners.setup_keypresses body;
+		Menus.pause_menu body;
 		Js._true
 	)
 

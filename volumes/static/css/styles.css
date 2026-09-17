@@ -4,5 +4,7 @@
 html {
 	cursor: url("/static/images/UI/cursors/Gauntlet.png"), auto;
 	image-rendering: crisp-edges;
+	font-family: exca;
+	font-size: 2vw;
 }
 
