@@ -26,8 +26,11 @@ type t = {
 }
 
 
+let minimum_radius: float = 40.
+
+
 let style_string (creet: t) : string = 
-	let diameter = creet.radius *. 2. in
+	let diameter = (creet.radius -. minimum_radius) *. 2. in
 	Printf.sprintf
 		"position: absolute; left: %.1fpx; top: %.1fpx;
 		 width: %.1fvw; height: %.1fvw; user-select: none; \
@@ -96,7 +99,7 @@ let create (seed: int) (id: int) =
 		seed = seed + id;
 		direction = vec2 (Float_t 1.) (Float_t 0.);
 		speed = 1.;
-		radius = 1.;
+		radius = minimum_radius +. 1.;
 		pos = vec2 (Float_t 0.) (Float_t 0.);
 	}
 

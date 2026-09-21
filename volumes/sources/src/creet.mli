@@ -17,6 +17,9 @@ type t = {
 }
 
 
+val minimum_radius	: float
+
+
 val style_string 	: t													-> string
 val update			: #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t	-> t	-> t
 

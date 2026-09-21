@@ -25,7 +25,7 @@ let vec2 (x: vec_aux_t) (y: vec_aux_t) : vec2 = match (x, y) with
 	| Int x, Int y			-> vec2_int x y
 	| Float_Tuple xy, _		-> vec2_float (fst xy) (snd xy)
 	| Int_Tuple xy, _		-> vec2_int (fst xy) (snd xy)
-	| _, _					-> vec2_float 0. 0.
+	| _						-> vec2_float 0. 0.
 
 
 let add (v: vec2) (u: vec2) : vec2 = {
@@ -34,7 +34,7 @@ let add (v: vec2) (u: vec2) : vec2 = {
 }
 
 
-let sub (v: vec2) (u: vec2) : vec2 = {
+let sub (u: vec2) (v: vec2) : vec2 = {
 	x = v.x -. u.x;
 	y = v.y -. u.y
 }
@@ -80,7 +80,7 @@ let distance (v: vec2) (u: vec2): float = u
 	|> length
 
 
-let cross_product (v: vec2) (u: vec2): float =
+let dot_product (v: vec2) (u: vec2): float =
 	v.x *. u.x +. v.y *. u.y
 
 
@@ -96,9 +96,13 @@ let from_angle (degrees: float): vec2 =
 }
 
 
-let (++) = add
+let string_of_vector (v: vec2): string =
+	"(" ^ (string_of_float v.x) ^ ";" ^ (string_of_float v.y) ^ ")"
 
-let (--) = sub
+
+let ( ++ ) = add
+
+let ( -- ) = sub
 
 let ( >> ) = scale
 
@@ -116,4 +120,4 @@ let ( |--| ) = distance2
 
 let ( |-| ) = distance
 
-let ( ** ) = cross_product
+let ( ** ) = dot_product
