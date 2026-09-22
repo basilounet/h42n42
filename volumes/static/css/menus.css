@@ -99,6 +99,33 @@
 	transform: translate(-50%, -50%);
 }
 
+.single_stat {
+	position: absolute;
+	top: 52vh; left: 83vw;
+	width: 6vw; height: 10vh;
+	/* background-image: url('/static/images/UI/icons/reproduction.png'); */
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+}
+
+.divider {
+	position: absolute;
+	top: 52vh; left: 83vw;
+	width: 24vw; height: 7vh;
+	background-image: url('/static/images/UI/divider.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+}
+
+.pie_chart {
+	position: absolute;
+	top: 75vh; left: 83vw;
+	width: 20vw; height: 25vh;
+	transform: translate(-50%, -50%);
+}
+
 .text {
 	position: absolute;
 	top: 64vh; left: 50vw;
@@ -106,6 +133,7 @@
 	font-size: 1.5vw;
 	transform: translate(-50%, -50%);
 	text-align: center;
+	text-justify: auto;
 }
 
 .difficulty {
@@ -114,6 +142,7 @@
 	width: 3vw; height: 4.5vh;
 	background: none;
 	border: none;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
 	background-image: url('/static/images/UI/buttons/checkbox_off.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
@@ -184,11 +213,4 @@ input[type="range"]::-moz-range-thumb {
 	background-color: #FF000000;
 	border: none;
 	/* transition: 1.2s ease-in-out; */
-}
-
-input[type="range"]::-moz-range-track {
-  width: 10vw; height: 3vh;
-
-  /* background: #ececec83; */
-  border-radius: 16px;
 }
