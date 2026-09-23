@@ -6,5 +6,6 @@ html {
 	image-rendering: crisp-edges;
 	font-family: exca;
 	font-size: 2vw;
+	user-select: none;
 }
 

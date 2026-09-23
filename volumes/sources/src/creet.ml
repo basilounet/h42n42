@@ -40,11 +40,9 @@ let style_string (creet: t) : string =
 
 let create_img (creet : t) =
     img
-        ~src:"static/images/creets/creet_healthy.png"
+        ~src:"/static/images/creets/creet_healthy.png"
         ~alt:(string_of_int creet.id)
-        ~a:[a_class ["creet " ^ (string_of_int creet.id)]; 
-			a_draggable false;
-			a_style ""]
+        ~a:[a_id (string_of_int creet.id); a_draggable false]
         ()
 
 

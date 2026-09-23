@@ -79,6 +79,46 @@
 	transform: translate(-50%, -50%);
 }
 
+.check_label {
+	position: absolute;
+	top: 0%; left: 50%;
+	width: 2.5vw; height: 2.5vw;
+	background-image: url('/static/images/UI/icons/dead.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+    margin: 0;
+	transform: translate(-50%, -50%);
+}
+
+.custom_checkbox {
+    appearance: none;           /* strip native checkbox rendering */
+    -webkit-appearance: none;
+	position: absolute;
+	top: 60%; left: 50%;
+    width: 2.5vw; height: 2.5vw;
+    background-image: url('/static/images/UI/buttons/checkbox_off.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+    margin: 0;
+	transform: translate(-50%, -50%);
+}
+
+.custom_checkbox:checked {
+    background-image: url('/static/images/UI/buttons/checkbox_on.png');
+}
+
+.sound_effect_checkboxes {
+	position: absolute;
+	top: 30vh; left: 10vw;
+	width: 10vw; height: 10vh;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+	background-image: url('/static/images/UI/buttons/checkbox_off.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	transform: translate(-50%, -50%);
+}
+
 .stats_title {
 	position: absolute;
 	top: 5vh; left: 83vw;
@@ -102,7 +142,7 @@
 .single_stat {
 	position: absolute;
 	top: 52vh; left: 83vw;
-	width: 6vw; height: 10vh;
+	width: 5vw; height: 10vh;
 	/* background-image: url('/static/images/UI/icons/reproduction.png'); */
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
@@ -129,7 +169,7 @@
 .text {
 	position: absolute;
 	top: 64vh; left: 50vw;
-	width: 10vw; height: 3vh;
+	width: 15vw; height: 3vh;
 	font-size: 1.5vw;
 	transform: translate(-50%, -50%);
 	text-align: center;
@@ -167,9 +207,9 @@
 	font-size: 1.5vw;
 }
 
-.slider_label {
+.slider_icon {
 	position: absolute;
-	top: 2vh; left: -3.5vw;
+	top: 5%; left: -20%;
 	width: 3.5vw; height: 7vh;
 	background-image: url('/static/images/UI/icons/volume.png');
 	background-repeat: no-repeat;

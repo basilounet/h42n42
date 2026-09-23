@@ -58,10 +58,12 @@ let test_behaviour () =
 let test_menus () =
 	Dom_html.window##.onload := Dom_html.handler (fun _ ->
 		let body = Dom_html.document##.body in
-		ignore @@ Background.create body;
+    	Sounds.setup_background_music body;
+		Background.create body |> ignore;
 		(* Event_listeners.setup_click body w_size; *)
 		Event_listeners.setup_keypresses body;
 		Menus.pause_menu body;
+    (* Sounds.start_music_on_first_interaction body; *)
 		Js._true
 	)
 
