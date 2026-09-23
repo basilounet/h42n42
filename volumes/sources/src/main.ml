@@ -45,7 +45,10 @@ let spawn_creets (num: int): Troop.t =
 let test_behaviour () =
 	Dom_html.window##.onload := Dom_html.handler (fun _ ->
 		let body = Dom_html.document##.body in
-		ignore @@ Background.create body;
+    	Sounds.setup_background_music body;
+		Background.create body |> ignore;
+		Event_listeners.setup_keypresses body;
+		(* Menus.pause_menu body; *)
 		let troop = spawn_creets 10 in
 		(* Mutex.lock !Behaviour.start_mutex; *)
 		Hashtbl.to_seq_values troop.map
@@ -54,20 +57,5 @@ let test_behaviour () =
 		Js._true
 	)
 
-
-let test_menus () =
-	Dom_html.window##.onload := Dom_html.handler (fun _ ->
-		let body = Dom_html.document##.body in
-    	Sounds.setup_background_music body;
-		Background.create body |> ignore;
-		(* Event_listeners.setup_click body w_size; *)
-		Event_listeners.setup_keypresses body;
-		Menus.pause_menu body;
-    (* Sounds.start_music_on_first_interaction body; *)
-		Js._true
-	)
-
-
 let () =
 	test_behaviour ()
-	(* test_menus () *)

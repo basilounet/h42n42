@@ -31,9 +31,3 @@ let setup_background_music body =
   );
   Dom.appendChild body bgm_node;
   play_track 0
-
-
-
-let float_of_js_string str: float = str |> Js.to_string |> float_of_string
-let js_string_of_float (flt: float) = Printf.sprintf "%.0f" flt |> Js.string
-
