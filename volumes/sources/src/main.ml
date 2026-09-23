@@ -69,5 +69,5 @@ let test_menus () =
 
 
 let () =
-	(* test_behaviour () *)
-	test_menus ()
+	test_behaviour ()
+	(* test_menus () *)

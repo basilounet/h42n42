@@ -10,11 +10,13 @@ type tags_type = {
 	grass: string;
 }
 
+
 let tags: tags_type = {
 	river = "RIVER";
 	hospital = "HOSPITAL";
 	grass = "GRASS";
 }
+
 
 let river =
 	img
@@ -24,14 +26,15 @@ let river =
 			a_draggable false]
 		()
 
-let hospital =
 
+let hospital =
 	img
 		~src:"/static/images/backgrounds/hospital/hospitals.png"
 		~alt:(tags.hospital)
 		~a:[a_class [tags.hospital]; 
 			a_draggable false]
 		()
+
 
 let grass =
 	img
@@ -40,6 +43,7 @@ let grass =
 		~a:[a_class [tags.grass]; 
 			a_draggable false]
 		()
+
 
 let rec animation (anim_name: string) (anim_curr: int) (anim_max: int) (anim_wait: float) (anim_time: float) node : unit Lwt.t =
     node##.src := Js.string @@ "/static/images/" ^ anim_name ^ "_" ^ (string_of_int anim_curr) ^ ".png";
@@ -51,11 +55,30 @@ let rec animation (anim_name: string) (anim_curr: int) (anim_max: int) (anim_wai
 		Lwt.bind (Lwt_js.sleep anim_time) 
 		(fun () -> animation anim_name (anim_curr + 1) anim_max anim_wait anim_time node)
 
+
 let grass_node = ref None
+
 
 let get_wsize () : vec2 = match !grass_node with
 	| None		-> vec2 (Int (0))            (Int (0))
 	| Some node	-> vec2 (Int (node##.width)) (Int (node##.height))
+
+
+let river_start (): float =
+	(get_wsize ()).x *. 0.9
+
+
+let is_in_river (x_coord: float): bool =
+	x_coord >= river_start ()
+
+
+let hospital_end (): float =
+	(get_wsize ()).x *. 0.1
+
+
+let is_in_hospital (x_coord: float): bool =
+	x_coord <= hospital_end ()
+
 
 let create body : vec2 = 
 	grass_node := Some (Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img grass);
@@ -70,3 +93,4 @@ let create body : vec2 =
 	Dom.appendChild body @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img river;
 	Dom.appendChild body @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img hospital;
 	get_wsize ()
+

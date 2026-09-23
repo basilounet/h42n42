@@ -2,6 +2,7 @@
  (name main)
  (modes js)
  (libraries
+  unix
   js_of_ocaml
   js_of_ocaml-tyxml
   js_of_ocaml-lwt
