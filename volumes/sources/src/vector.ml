@@ -1,11 +1,8 @@
 
-type vec2 = {
-	x: float;
-	y: float
-}
 
+type vec_aux_t	= Types.vec_aux_t
+type vec2		= Types.vec2
 
-type vec_aux_t = Float_t of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | Vec_None
 
 
 let vec2_int (x: int) (y: int) : vec2 = {

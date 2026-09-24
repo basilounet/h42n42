@@ -2,24 +2,8 @@ open Vector
 open Js_of_ocaml
 
 
-type creet_state = Healthy | Sick | Mean | Berserk | Dead
-
-
-type t = {
-	id:					int;
-	mutable state:		creet_state;
-	mutable radius:		float;
-	mutable pos:		vec2;
-	mutable direction:	vec2;
-	mutable speed:		float;
-	mutable target:		int;
-	mutable time_sick:	float;
-	seed:				int;
-	random:				Random.State.t;
-}
-
-
-val minimum_radius	: float
+type t		= Types.creet
+type state	= Types.creet_state
 
 
 val style_string 	: t													-> string
@@ -28,10 +12,12 @@ val be_contaminated : t													-> t
 val be_dead			: t													-> t
 
 val create  		: int										-> int	-> t
-val set_state   	: creet_state								-> t	-> t
+val set_state   	: state										-> t	-> t
 val set_radius		: float      								-> t	-> t
 val set_pos			: vec2   	 								-> t	-> t
 val set_direction	: vec2		 								-> t	-> t
 val set_speed 		: float      								-> t	-> t
 val advance			: t													-> t
+val	avoidance		: t													-> float
+val	avoidance2		: t													-> float
 val debug_creet		: t													-> unit

@@ -2,48 +2,20 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Vector
 
-(* Size variables *)
-let width				()		= (Background.get_wsize ()).x
-let height				()		= (Background.get_wsize ()).y
-let window_margin		()		= 0.1
 
-(* Behaviour variables *)
-let bound_panic			()		= 0.05
-let eyesight_range		()		= 200.
-let collision_range		()		= 100.
-let collision_factor	()		= 0.02
-let deviation_factor	()		= 0.05
-let chase_factor		()		= 0.05 
-let infection_factor	()		= 2		(* Is compared against a Random.int 100 *)
-let time_to_die			()		= 60.
-
-let start_mutex: Mutex.t ref	= ref @@ Mutex.create ()
+let game_tick: unit Lwt_condition.t	= Lwt_condition.create ()
 
 
-(* Helper functions *)
-let eyesight (creet: Creet.t): float =
-	creet.radius *. eyesight_range ()
-
-let eyesight2 (creet: Creet.t): float =
-	(eyesight creet) *. (eyesight creet)
-
-let avoidance (creet: Creet.t): float =
-	creet.radius *. collision_range ()
-
-let avoidance2 (creet: Creet.t): float =
-	(avoidance creet) *. (avoidance creet)
-
-
-let target_exists (troop: Troop.t) (target: int): bool =
-	match (Hashtbl.find_opt troop.map target) with
+let target_exists (troop: Types.troop) (target: int): bool =
+	match (Hashtbl.find_opt troop target) with
 	| None	-> false
 	| _		-> true
 
 
-let is_target_ill (troop: Troop.t) (target: int): bool =
-	match (Hashtbl.find troop.map target).state with
-	| Creet.Healthy -> false
-	| _				-> true
+let is_target_ill (troop: Types.troop) (target: int): bool =
+	match (Hashtbl.find troop target).state with
+	| Healthy 	-> false
+	| _			-> true
 
 
 (* Independent Behaviours *)
@@ -55,7 +27,7 @@ let river_contamination (creet: Creet.t): Creet.t =
 		creet
 
 
-let creet_contamination (troop: Troop.t) (creet: Creet.t): Creet.t =
+let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 	let can_infect (creet1: Creet.t) (creet2: Creet.t): bool =
 		match creet1.state with
 		| Healthy	-> false
@@ -69,37 +41,37 @@ let creet_contamination (troop: Troop.t) (creet: Creet.t): Creet.t =
 		if true
 			&& other_creet != creet
 			&& can_infect creet other_creet
-			&& creet.pos |--| other_creet.pos < avoidance2 creet
+			&& creet.pos |--| other_creet.pos < Creet.avoidance2 creet
 		then
-			if Random.int 100 < infection_factor ()
+			if Random.int 100 < Params.creet.infection#get ()
 			then
 				ignore @@ Creet.be_contaminated other_creet
 			else
 				()
 	in
 
-	Hashtbl.to_seq_values troop.map
-	|> Seq.iter infect_creet;
+	List.iter infect_creet neighbors;
 	creet
 
 
 let berserk_growth (creet: Creet.t): Creet.t =
 	creet.radius <- creet.radius *. 1.001;
-	if creet.radius > Creet.minimum_radius *. 4.
+	if creet.radius > Params.creet.initial_radius *. 4.
 	then
 		Creet.be_dead creet
 	else
 		creet
 
 
-let mean_new_target (troop: Troop.t) (creet: Creet.t): Creet.t =
-	let viable_targets = Hashtbl.to_seq_values troop.map
+let mean_new_target (troop: Types.troop) (creet: Creet.t): Creet.t =
+	let viable_targets = Hashtbl.to_seq_values troop
 		|> Seq.filter (fun (c: Creet.t) -> c.state = Healthy && c.id <> creet.target)
 	in
 	let num_targets = Seq.length viable_targets in
 	if num_targets > 0
 	then begin
-		let target = Seq.drop (Random.int num_targets) viable_targets
+		let target = viable_targets 
+			|> Seq.drop (Random.int num_targets) 
 			|> Seq.find (fun (c: Creet.t) -> true)
 			|> Option.get
 		in
@@ -112,7 +84,7 @@ let mean_new_target (troop: Troop.t) (creet: Creet.t): Creet.t =
 
 
 let ask_to_die (creet: Creet.t): Creet.t =
-	if Unix.time () -. creet.time_sick > time_to_die ()
+	if Unix.time () -. creet.time_sick > Params.creet.death_timer#get ()
 	then
 		Creet.be_dead creet
 	else
@@ -121,10 +93,10 @@ let ask_to_die (creet: Creet.t): Creet.t =
 
 (* Brain Behaviours *)
 let avoid_bounds (creet: Creet.t): Creet.t =
-	let width_v		= width () in
-	let height_v	= height () in
-	let border		= min (width_v *. (window_margin ())) (height_v *. (window_margin ())) in
-	let margin_v	= (border +. (2. *. creet.radius)) /. 2. in
+	let width	= Params.simulation.width in
+	let height	= Params.simulation.height in
+	let border	= min (width *. Params.creet.border_margin) (height *. Params.creet.border_margin) in
+	let margin	= (border +. (2. *. creet.radius)) /. 2. in
 
 	
 	let compute_force_dir (pos: float) (min_bound: float) (max_bound: float): float =
@@ -138,8 +110,8 @@ let avoid_bounds (creet: Creet.t): Creet.t =
 			0.
 	in
 	let force = vec2
-		(Float_t (compute_force_dir (creet.pos.x) (margin_v) (width_v -. margin_v )))
-		(Float_t (compute_force_dir (creet.pos.y) (margin_v) (height_v -. margin_v)))
+		(Float_t (compute_force_dir (creet.pos.x) (margin) (width -. margin )))
+		(Float_t (compute_force_dir (creet.pos.y) (margin) (height -. margin)))
 	in
 
 
@@ -152,7 +124,7 @@ let avoid_bounds (creet: Creet.t): Creet.t =
 	if length2 force > 0.
 	then begin
 		creet.direction <- (force
-			|> scale ((compute_force_len force) +. bound_panic ())
+			|> scale ((compute_force_len force) +. Params.creet.panic#get ())
 			|> add creet.direction
 		);
 	creet
@@ -160,15 +132,15 @@ let avoid_bounds (creet: Creet.t): Creet.t =
 		creet
 
 
-let avoid_creets (troop: Troop.t) (creet: Creet.t): Creet.t =
+let avoid_creets (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 	let delta: vec2 ref = ref @@ vec2 (Vec_None) (Vec_None) in
 
 	let correct_trajectory (other_creet: Creet.t): unit =
 		if creet != other_creet then begin
 			let distance = creet.pos |-| other_creet.pos in
-			if distance < avoidance creet && distance > 0. then begin
+			if distance < Creet.avoidance creet && distance > 0. then begin
 				let push_dir = creet.pos |> sub other_creet.pos in
-				let strength = ((avoidance creet) -. distance) /. (avoidance creet) in
+				let strength = ((Creet.avoidance creet) -. distance) /. (Creet.avoidance creet) in
 				delta := push_dir |> stretch strength |> add !delta
 			end
 		end
@@ -178,12 +150,10 @@ let avoid_creets (troop: Troop.t) (creet: Creet.t): Creet.t =
 		creet
 	in
 	
-	Hashtbl.to_seq_values troop.map
-	|> Seq.iter correct_trajectory;
-	
+	List.iter correct_trajectory neighbors;
 	if length2 !delta > 0.
 	then begin
-		let steer = !delta |> stretch (collision_factor ()) in
+		let steer = !delta |> stretch (Params.creet.stress#get ()) in
 		creet.direction <- (creet.direction |> add steer |> normalise);
 		end_function_call ()
 	end else
@@ -217,17 +187,17 @@ let random_deviation (creet: Creet.t): Creet.t =
 		creet
 
 
-let rec chase_creet (troop: Troop.t) (creet: Creet.t): Creet.t =
+let rec chase_creet (troop: Types.troop) (creet: Creet.t): Creet.t =
 	let chase_target () = 
-		let target		= Hashtbl.find troop.map creet.target in
+		let target		= Hashtbl.find troop creet.target in
 		let dist2		= target.pos |--| creet.pos in
-		if dist2 < (avoidance2 target)
+		if dist2 < (Creet.avoidance2 target)
 		then
 			mean_new_target troop creet
 		else begin
 			let direction = creet.pos -- target.pos in
 			creet.direction <- (direction
-				|> stretch (chase_factor ())
+				|> stretch (Params.creet.chase#get ())
 				|> add creet.direction
 				|> normalise
 			);
@@ -258,77 +228,78 @@ let rec chase_creet (troop: Troop.t) (creet: Creet.t): Creet.t =
 
 
 (* Brain *)
-let healthy_brain (creet: Creet.t) (troop: Troop.t): unit =
+let healthy_brain (creet: Creet.t): unit =
+	let neighbors = Grid.possible_collisions creet in
 	ignore @@ ( creet
 		|> avoid_bounds
-		|> avoid_creets troop
+		|> avoid_creets neighbors
 		|> random_deviation
 		|> Creet.advance
 		|> river_contamination
 	)
 
 
-let sick_brain (creet: Creet.t) (troop: Troop.t): unit =
+let sick_brain (creet: Creet.t): unit =
+	let neighbors = Grid.possible_collisions creet in
 	ignore @@ ( creet
 		|> avoid_bounds
-		|> avoid_creets troop
+		|> avoid_creets neighbors
 		|> random_deviation
-		|> creet_contamination troop
+		|> creet_contamination neighbors
 		|> Creet.advance
 	)
 
 
-let mean_brain (creet: Creet.t) (troop: Troop.t): unit =
+let mean_brain (creet: Creet.t): unit =
+	let neighbors = Grid.possible_collisions creet in
 	ignore @@ ( creet
 		|> avoid_bounds
-		|> chase_creet troop
+		|> chase_creet Params.simulation.troop
 		|> random_deviation
-		|> creet_contamination troop
+		|> creet_contamination neighbors
 		|> ask_to_die
 		|> Creet.advance
 	)
 
 
-let berserk_brain (creet: Creet.t) (troop: Troop.t): unit =
+let berserk_brain (creet: Creet.t): unit =
+	let neighbors = Grid.possible_collisions creet in
 	ignore @@ ( creet
 		|> avoid_bounds
 		|> berserk_growth
-		|> creet_contamination troop
+		|> creet_contamination neighbors
 		|> Creet.advance
 	)
 
 
-let select_behaviour (creet: Creet.t) (troop: Troop.t): unit = 
+let select_behaviour (creet: Creet.t): unit = 
 	match creet.state with
-	| Creet.Healthy -> healthy_brain creet troop
-	| Creet.Sick	-> sick_brain creet troop
-	| Creet.Mean	-> mean_brain creet troop
-	| Creet.Berserk	-> berserk_brain creet troop
-	| Creet.Dead	-> ()
+	| Types.Healthy -> healthy_brain creet
+	| Types.Sick	-> sick_brain creet
+	| Types.Mean	-> mean_brain creet
+	| Types.Berserk	-> berserk_brain creet
+	| Types.Dead	-> ()
 
 
-let rec run (creet: Creet.t) (troop: Troop.t) (body: #Dom.node Js.t): unit Lwt.t =
+let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 	ignore @@ Creet.update body creet;
-	Lwt.bind (Lwt_js.sleep 0.) (fun () ->
-		ignore @@ select_behaviour creet troop;
-		if creet.state = Creet.Dead
+	ignore @@ select_behaviour creet;
+	Lwt.bind (Lwt_condition.wait game_tick) (fun _ ->
+		if creet.state = Types.Dead
 		then begin
-			Hashtbl.remove troop.map creet.id;
+			Hashtbl.remove Params.simulation.troop creet.id;
 			Lwt.return ()
 		end else
-			run creet troop body
+			run creet body
 	)
 
 
-let ready (creet: Creet.t) (troop: Troop.t) (body: #Dom.node Js.t): unit =
-	(* let has_started (): bool =
-		Mutex.try_lock !start_mutex
-	in
-
-	while has_started () = false do
-		ignore @@ Lwt_js.sleep 0.1
-	done;
-	Mutex.lock !start_mutex;
-	Mutex.unlock !start_mutex; *)
-	ignore @@ run creet troop body
+let rec simulation_loop (): unit Lwt.t =
+	Grid.clear ();
+	Hashtbl.to_seq_values Params.simulation.troop
+	|> Seq.iter Grid.add;
+	Lwt_condition.broadcast game_tick ();
+	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun _ ->
+		simulation_loop ()
+	)
 

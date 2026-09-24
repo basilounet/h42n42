@@ -9,5 +9,5 @@
   lwt
  )
  (preprocess (pps js_of_ocaml-ppx))
- (modules_without_implementation Troop)
+ (modules_without_implementation types)
 )
