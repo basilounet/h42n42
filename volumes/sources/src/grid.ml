@@ -51,7 +51,7 @@ let index_of_creet (creet: Creet.t): int =
 
 
 let cell_of_int (index: int): cell = 
-	Printf.printf "Accessing cell at index %d\n" index;
+	(* Printf.printf "Accessing cell at index %d\n" index; *)
 	Array.get grid.data index
 
 

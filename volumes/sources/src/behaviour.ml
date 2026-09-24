@@ -294,7 +294,33 @@ let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 	)
 
 
+
+let last_time: float ref = ref @@ Unix.gettimeofday ()
+
+open Js_of_ocaml_tyxml.Tyxml_js
+open Js_of_ocaml_tyxml.Tyxml_js.Html
+
+let fps_text = (div ~a:[a_id "fps"; a_class ["text"]; a_style "top: 73vh; left: 45vw"][txt @@ string_of_float (!last_time /. 60.)])
+let fps_text_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div fps_text
+
+let already_setup = ref false
+
+let one_time_setup_listeners () : unit =
+	match !already_setup with
+	| true -> ()
+	| false -> already_setup := true; Dom.appendChild (Dom_html.document##.body) fps_text_node
+
 let rec simulation_loop (): unit Lwt.t =
+  let new_time = Unix.gettimeofday () in
+  let delta_time: float = new_time -. !last_time in
+  last_time := new_time;
+
+  one_time_setup_listeners ();
+ 
+  (* Printf.printf "fps: %f\n" @@ 1. /. delta_time; *)
+    fps_text_node##.textContent := Js.some (Js.string (string_of_float @@ Float.floor @@ 1. /. delta_time));  
+  (* fps_text_node##.nodeValue = (Js.string @@ string_of_float @@ 1. /. delta_time) |> ignore; *)
+
 	Grid.clear ();
 	Hashtbl.to_seq_values Params.simulation.troop
 	|> Seq.iter Grid.add;
