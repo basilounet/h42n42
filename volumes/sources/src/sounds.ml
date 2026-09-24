@@ -25,8 +25,8 @@ let sound_effect_type_to_source = function
 
 let toggle_sound (sound_type: sound_effect_type) =
 	let pos = sound_effect_type_to_int sound_type in
-	activated_sounds := List.mapi (fun i x -> if i = pos then not x else x) !activated_sounds;
-	Printf.printf "sound_type: %d, value: %b\n" pos (List.nth !activated_sounds pos)
+	activated_sounds := List.mapi (fun i x -> if i = pos then not x else x) !activated_sounds
+	(* Printf.printf "sound_type: %d, value: %b\n" pos (List.nth !activated_sounds pos) *)
 
 let playlist = [
 	"/static/sounds/musics/main_theme.mp3";

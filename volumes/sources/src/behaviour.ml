@@ -281,6 +281,9 @@ let berserk_brain (creet: Creet.t): unit =
 
 
 let select_behaviour (creet: Creet.t): unit = 
+	match Menus.is_pause () with
+	| true -> ()
+	| false -> 
 	match creet.grabbed with
 	| true			-> grabbed creet
 	| _				->

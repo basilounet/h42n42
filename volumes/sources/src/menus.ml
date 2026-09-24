@@ -219,7 +219,6 @@ let one_time_setup_listeners () : unit =
 	| true -> ()
 	| false ->
 	already_setup_listeners := true;
-	Printf.printf "Here\n";
 	async (fun () ->
 		Lwt_js_events.clicks retry_node (fun ev _handler ->
 		Printf.printf "retry\n"; (* TODO : here *)

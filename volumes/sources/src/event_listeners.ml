@@ -51,7 +51,6 @@ let setup_click target: unit =
 
 
 let track_cursor target: unit =
-	Printf.printf "test\n";
 	Lwt.async (fun () ->
 		Lwt_js_events.mousemoves target (fun ev _handler ->
 			let pos = vec2 (Float_t (ev##.clientX |> Js.float_of_number)) (Float_t (ev##.clientY |> Js.float_of_number)) in

@@ -4,16 +4,16 @@ open Vector
 module Svg = Js_of_ocaml_tyxml.Tyxml_js.Svg
 
 
-type t		= Types.creet
+type t			= Types.creet
 type state	= Types.creet_state
 
 
 let string_of_state = function
 	| Types.Healthy	-> "healthy"
-	| Types.Sick	-> "sick"
-	| Types.Mean	-> "mean"
+	| Types.Sick		-> "sick"
+	| Types.Mean		-> "mean"
 	| Types.Berserk	-> "berserk"
-	| Types.Dead	-> "dead"
+	| Types.Dead		-> "dead"
 
 
 let style_string (creet: t) : string = 
@@ -31,25 +31,25 @@ let style_string (creet: t) : string =
 
 
 let create_img (creet : t) =
-    img
-        ~src:"/static/images/creets/creet_healthy.png"
-        ~alt:(string_of_int creet.id)
-        ~a:[a_id (string_of_int creet.id); a_draggable false]
-        ()
+	img
+		~src:"/static/images/creets/creet_healthy.png"
+		~alt:(string_of_int creet.id)
+		~a:[a_id (string_of_int creet.id); a_draggable false]
+		()
 
 
 let creet_nodes : (int, Dom_html.imageElement Js.t) Hashtbl.t = Hashtbl.create 16
 
 
 let get_or_create_node (body: #Dom.node Js.t) (creet : t) : Dom_html.imageElement Js.t =
-    match Hashtbl.find_opt creet_nodes creet.id with
-    | Some node -> node
-    | None ->
-        let elt = create_img creet in
-        let node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img elt in
-        Dom.appendChild body node;
-        Hashtbl.add creet_nodes creet.id node;
-        node
+	match Hashtbl.find_opt creet_nodes creet.id with
+	| Some node -> node
+	| None ->
+		let elt = create_img creet in
+		let node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img elt in
+		Dom.appendChild body node;
+		Hashtbl.add creet_nodes creet.id node;
+		node
 
 		
 let update (body: #Dom.node Js.t) (creet : t) : t =
@@ -60,20 +60,20 @@ let update (body: #Dom.node Js.t) (creet : t) : t =
 
 
 let be_mean (creet: t): t =
-  Sounds.play_sound_effect Sounds.SEvolution;
+	Sounds.play_sound_effect Sounds.SEvolution;
 	creet.state		<- Mean;
 	creet.target	<- -1;
 	creet
 
 
 let be_berserk (creet: t): t =
-  Sounds.play_sound_effect Sounds.SEvolution;
+	Sounds.play_sound_effect Sounds.SEvolution;
 	creet.state <- Berserk;
 	creet
 
 
 let be_sick (creet: t): t =
-  Sounds.play_sound_effect Sounds.SContamination;
+	Sounds.play_sound_effect Sounds.SContamination;
 	creet.state <- Sick;
 	creet
 
@@ -113,12 +113,11 @@ let be_released (creet: t): t =
 	Params.simulation.grabbed_creet# set (-1);
 	creet.grabbed <- false;
 	match creet.state with
-	| Types.Sick	->
-		if Background.is_in_hospital creet.pos.x
-		then
-			be_healed creet
-		else
-			creet
+	| Types.Sick	-> begin
+		match Background.is_in_hospital creet.pos.x with
+		| true -> Sounds.play_sound_effect Sounds.SHealing; be_healed creet
+		| false ->creet
+	end
 	| _				-> creet
 
 
