@@ -93,6 +93,7 @@ let be_sick (creet: t): t =
 let be_dead (creet: t): t =
 	Printf.printf "i am dead at %.0f\n" creet.time_sick;
 	creet.state <- Dead;
+  Sounds.play_sound_effect Sounds.SDeath;
 	let body = Dom_html.document##.body in
 	let node = Hashtbl.find creet_nodes creet.id in
 	Dom.removeChild body node;
@@ -102,6 +103,7 @@ let be_dead (creet: t): t =
 let be_contaminated (creet: t): t =
 	let random_num = Random.int 10 in
 	creet.time_sick <- Unix.time ();
+  Sounds.play_sound_effect Sounds.SContamination;
 	creet |>
 	match random_num with
 	| 0	-> be_mean

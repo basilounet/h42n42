@@ -37,10 +37,11 @@ let setup_click target (w_size:vec2) =
 let setup_keypresses target =
 	Lwt.async (fun () -> Lwt_js_events.keypresses target (fun ev _handler ->
 		match ev##.keyCode with
+    | 118 -> Sounds.play_sound_effect Sounds.SReproduction; Lwt.return_unit
 		(* Enter or Space *)
 		| 13 | 32 -> begin match !Menus.close_modal with
 			| Some close_modal -> close_modal ()
-			| None -> Menus.pause_menu target 
+			| None -> Menus.pause_menu target
 		end; Lwt.return_unit
 		| key -> Printf.printf "keyCode: %d\n" key; Lwt.return_unit
 	));

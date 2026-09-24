@@ -17,9 +17,9 @@ let number_of_js_string v = v |> float_of_js_string |> Js.number_of_float
 
 
 type slice = {
-	value : float;   (* relative weight; doesn't need to sum to 100 *)
+	value : float;	 (* relative weight; doesn't need to sum to 100 *)
 	color : string;
-	icon  : string; (* path to the icon image *)
+	icon	: string; (* path to the icon image *)
 }
 
 let pi = 4.0 *. atan 1.0
@@ -73,12 +73,12 @@ let make_pie_chart
 		slices
 	in
 	svg
-	  ~a:[
+		~a:[
 		Svg.a_id "chart";
 		Svg.a_viewBox (0., 0., cx *. 2., cy *. 2.);
 		Svg.a_class ["pie_chart"];
-	  ]
-	  (paths @ icons)
+		]
+		(paths @ icons)
 
 let my_pie curr_alive contaminated evolution dead = make_pie_chart
 	~cx:100. ~cy:100. ~radius:100.
@@ -91,53 +91,150 @@ let my_pie curr_alive contaminated evolution dead = make_pie_chart
 		{ value = 3.; color = "#000000"; icon = "/static/images/UI/icons/dead.png" };
 	]
 
+let close_button = button ~a:[a_class ["pause_button"]; a_id "return_button"] [txt "Go back to Game"]
+let retry_button = button ~a:[a_class ["pause_button"]; a_id "retry_button"; a_style "top: 60vh; left: 50%;"] [txt "Retry"]
+let easy_button = button ~a:[a_class ["difficulty"]; a_id "box_easy"	; a_style "left: 45vw;"][]
+let normal_button = button ~a:[a_class ["difficulty"]; a_id "box_normal"; a_style "left: 50vw;"][]
+let hard_button = button ~a:[a_class ["difficulty"]; a_id "box_hard"	; a_style "left: 55vw"][]
+let slider_input (id: string) (min: int) (max: int) (step: float) (value: string) =
+	input () ~a:[
+		a_input_type `Range; a_id id;
+		a_input_min (`Number min); a_input_max (`Number max);
+		a_value value; a_step (Some step) ]
+	
+let sound_effects_input =		slider_input "sound_effects" 	0 1   0.05	"50"
+let music_input =						slider_input "music"					0 1 	0.05	"0"	
+let reproduction_input =		slider_input "reproduction"		0 1   0.05	"50"
+let initial_creets_input =	slider_input "initial_creets"	0 1   0.05	"50"
+let contamination_input =		slider_input "contamination"	0 1   0.05	"50"
+let evolution_input =				slider_input "evolution"			0 1   0.05	"50"
+let speed_input = 					slider_input "speed" 					0 1   0.05	"50"
+
+let checkbox_input (id : string) (checked : bool) =
+	let base_attrs = [a_input_type `Checkbox; a_id id; a_class ["custom_checkbox"]] in
+	input () ~a:(if checked then a_checked () :: base_attrs else base_attrs)
+
+let sound_contamination_input =	checkbox_input "sound_contamination" true
+let sound_heal_input = 					checkbox_input "sound_heal" true
+let sound_dead_input = 					checkbox_input "sound_dead" true
+let sound_reproduction_input =	checkbox_input "sound_reproduction" true
+
+let create_slider (icon: string) (x: string) (y: string) slider =
+div ~a:[a_class ["slider"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id icon] [
+	p ~a:[a_class ["slider_icon"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
+	p ~a:[a_class ["text"]; a_style "top: -30%; left: 50%"]	[txt icon];
+	slider;
+]
+
+let create_checkbox (icon: string) (x: string) (y: string) checkbox = 
+div ~a:[a_style ("position:absolute;left:"^x^"vw;top:"^y^"vh;width:3vw;height:3vw"); a_id ("sound_"^icon)] [
+	p ~a:[a_class ["check_label"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
+	checkbox;		
+]
+
+let single_stat (icon: string) (name: string) (x: string) (y: string) (value: string) = 
+div ~a:[a_class ["single_stat"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id name] [
+	p ~a:[a_class ["single_stat"]; a_style ("left:0vw;top:0vh;background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
+	p ~a:[a_class ["text"]; a_style "top: 1vh; left: 5vw"; a_id (name^"_value")] [txt value];
+	p ~a:[a_class ["text"]; a_style "top: 6vh; left: 5vw; font-size:0.8vw"; a_id (name^"_id")] [txt name];
+]
+
+let sound_effects_node =			Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_effects_input
+let music_node =							Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input music_input
+let sound_contamination_node =Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_contamination_input
+let sound_heal_node =					Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_heal_input
+let sound_dead_node =					Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_dead_input
+let sound_reproduction_node =	Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_reproduction_input
+let reproduction_node =				Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input reproduction_input
+let initial_creets_node =			Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input initial_creets_input
+let contamination_node =			Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input contamination_input
+let evolution_node =					Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input evolution_input
+let speed_node =							Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input speed_input
+let close_node =							Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button close_button
+let retry_node =							Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button retry_button
+let easy_node =								Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button easy_button
+let normal_node =							Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button normal_button
+let hard_node =								Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button hard_button
+
+
+let set_slider_value slider value fun_of_value	= 
+	slider##.value := value;
+	fun_of_value value
+
+let music_fun v = 
+	Sounds.bgm_node##.volume := number_of_js_string v
+
+let sound_effect_fun v = 
+	Printf.printf "v: %s, sound_effect_sound: %f\n" (Js.to_string v) !Sounds.sound_effect_sound;
+	Sounds.sound_effect_sound := float_of_js_string v
+
+(* Other callbacks for of the page, e.g. a slider / button *)
+let setup_slider_listener (name: string) node_to_listen fun_of_value = 
+	async (fun () -> Lwt_js_events.inputs node_to_listen (fun _ev _handler ->
+		(* let v = Js.to_string node_to_listen##.value |> float_of_string in
+		Printf.printf "%s: %.0f\n" name v; *)
+		set_slider_value node_to_listen node_to_listen##.value fun_of_value;
+		Lwt.return_unit
+	)); ()
+
+let setup_checkbox_listener (name : string) (sound_type: Sounds.sound_effect_type) node on_toggle =
+	Lwt.async (fun () ->
+	Lwt_js_events.clicks node (fun _ev _handler ->
+		(* let is_checked = Js.to_bool node##.checked in *)
+		(* Printf.printf "%s: %b\n" name is_checked; *)
+		on_toggle sound_type ;
+		Lwt.return_unit
+	)); ()
+
+
+let sound_check_fun (sound_type: Sounds.sound_effect_type) = 
+	Sounds.toggle_sound sound_type
+
+let setup_difficulty_buttons node_to_listen fn = async (fun () ->
+	Lwt_js_events.clicks node_to_listen (fun ev _handler ->
+	let new_val node = fn (float_of_js_string node##.min) (float_of_js_string node##.max) |> js_string_of_float in
+	set_slider_value reproduction_node	 (new_val reproduction_node)		music_fun;
+	set_slider_value initial_creets_node (new_val initial_creets_node)	music_fun;
+	set_slider_value contamination_node	 (new_val contamination_node) music_fun;
+	set_slider_value evolution_node			 (new_val evolution_node)	music_fun;
+	set_slider_value speed_node					 (new_val speed_node)	 music_fun;
+	Lwt.return_unit
+)); ()
+
+let already_setup_listeners = ref false
+
+let one_time_setup_listeners () : unit =
+	match !already_setup_listeners with
+	| true -> ()
+	| false ->
+	already_setup_listeners := true;
+	Printf.printf "Here\n";
+	async (fun () ->
+		Lwt_js_events.clicks retry_node (fun ev _handler ->
+		Printf.printf "retry\n"; (* TODO : here *)
+		(* sound_effects_node##.value := js_string_of_float @@ mid_value (float_of_js_string sound_effects_node##.min) (float_of_js_string sound_effects_node##.max); *)
+		Lwt.return_unit
+	));
+	setup_slider_listener "sound_effects" 	sound_effects_node	sound_effect_fun;
+	setup_slider_listener "music" 					music_node					music_fun;
+	setup_slider_listener "reproduction" 		reproduction_node		music_fun;
+	setup_slider_listener "initial_creets" 	initial_creets_node music_fun;
+	setup_slider_listener "contamination" 	contamination_node	music_fun;
+	setup_slider_listener "evolution" 			evolution_node			music_fun;
+	setup_slider_listener "speed" 					speed_node					music_fun;
+
+	setup_checkbox_listener "sound_contamination" Sounds.SContamination	sound_contamination_node	sound_check_fun;
+	setup_checkbox_listener "sound_heal"					Sounds.SHealing				sound_heal_node						sound_check_fun;
+	setup_checkbox_listener "sound_dead"					Sounds.SDeath					sound_dead_node						sound_check_fun;
+	setup_checkbox_listener "sound_reproduction"	Sounds.SReproduction	sound_reproduction_node		sound_check_fun;
+
+	setup_difficulty_buttons easy_node		(fun min max -> min);
+	setup_difficulty_buttons normal_node	(fun min max -> (max -. min) /. 2. +. min);
+	setup_difficulty_buttons hard_node		(fun min max -> max);
+	()
+
 let pause_menu body : unit =
-	let close_button = button ~a:[a_class ["pause_button"]; a_id "return_button"] [txt "Go back to Game"] in
-	let retry_button = button ~a:[a_class ["pause_button"]; a_id "retry_button"; a_style "top: 60vh; left: 50%;"] [txt "Retry"] in
-	let easy_button = button ~a:[a_class ["difficulty"]; a_id "box_easy"  ; a_style "left: 45vw;"][] in
-	let normal_button = button ~a:[a_class ["difficulty"]; a_id "box_normal"; a_style "left: 50vw;"][] in
-	let hard_button = button ~a:[a_class ["difficulty"]; a_id "box_hard"  ; a_style "left: 55vw"][] in
-	let slider_input (id: string) (min: int) (max: int) (value: string) =
-		input () ~a:[
-			a_input_type `Range; a_id id;
-			a_input_min (`Number min); a_input_max (`Number max);
-			a_value value; a_step (Some 1.) ] in
-    
-	let sound_effects_input =		slider_input "sound_effects" 	0 100 "50" in
-	let music_input =		        slider_input "music"          0 100 "0" in
-	let reproduction_input =	  slider_input "reproduction"		0 100 "50" in
-	let initial_creets_input =	slider_input "initial_creets"	0 100 "50" in
-	let contamination_input =	  slider_input "contamination"	0 100 "50" in
-	let evolution_input =		    slider_input "evolution"		  0 100 "50" in
-	let speed_input = 			    slider_input "speed" 			    0 100 "50" in
-  let checkbox_input (id : string) (checked : bool) =
-    let base_attrs = [a_input_type `Checkbox; a_id id; a_class ["custom_checkbox"]] in
-    input () ~a:(if checked then a_checked () :: base_attrs else base_attrs) in
-
-	let sound_contamination_input =	checkbox_input "sound_contamination" true in
-	let sound_heal_input = 					checkbox_input "sound_heal" true in
-  let sound_dead_input = 					checkbox_input "sound_dead" true in
-  let sound_reproduction_input =	checkbox_input "sound_reproduction" true in
-
-	let create_slider (icon: string) (x: string) (y: string) slider =
-	div ~a:[a_class ["slider"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id icon] [
-		p ~a:[a_class ["slider_icon"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
-		p ~a:[a_class ["text"]; a_style "top: -30%; left: 50%"]	[txt icon];
-		slider;
-	] in
-
-	let create_checkbox (icon: string) (x: string) (y: string) checkbox = 
-	div ~a:[a_style ("position:absolute;left:"^x^"vw;top:"^y^"vh;width:3vw;height:3vw"); a_id ("sound_"^icon)] [
-		p ~a:[a_class ["check_label"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
-		checkbox;		
-	] in
-
-	let single_stat (icon: string) (name: string) (x: string) (y: string) (value: string) = 
-	div ~a:[a_class ["single_stat"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id name] [
-		p ~a:[a_class ["single_stat"]; a_style ("left:0vw;top:0vh;background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
-		p ~a:[a_class ["text"]; a_style "top: 1vh; left: 5vw"; a_id (name^"_value")] [txt value];
-		p ~a:[a_class ["text"]; a_style "top: 6vh; left: 5vw; font-size:0.8vw"; a_id (name^"_id")] [txt name];
-	] in
+	one_time_setup_listeners ();
 
 	let pause_html = [
 		(p ~a:[a_class ["pause_bg"]][]);
@@ -153,25 +250,25 @@ let pause_menu body : unit =
 		(hard_button); 
 	] in 
 	let settings_html = [
-	   (p ~a:[a_class ["settings_title"]][]);
-	   (p ~a:[a_class ["settings"]][]);
-	   (create_slider "music"   				"20" "28"		music_input);
-	   (create_slider "sound effects"		"20" "35.5"	sound_effects_input);
-     (create_checkbox "contamination"	"10" "40"		sound_contamination_input);
-     (create_checkbox "reproduction"	"14" "40"		sound_heal_input);
-     (create_checkbox "dead"					"18" "40"		sound_dead_input);
-     (create_checkbox "max alive"			"22" "40"		sound_reproduction_input);
-	   (create_slider "reproduction" 	  "20" "53"		reproduction_input);
-	   (create_slider "initial creets"	"20" "61"		initial_creets_input);
-	   (create_slider "contamination"	  "20" "70"		contamination_input);
-	   (create_slider "evolution"		    "20" "78"		evolution_input);
-	   (create_slider "speed"			      "20" "86"		speed_input);
+		 (p ~a:[a_class ["settings_title"]][]);
+		 (p ~a:[a_class ["settings"]][]);
+		 (create_slider		"music"						"20" "28"		music_input);
+		 (create_slider		"sound effects"		"20" "35.5"	sound_effects_input);
+		 (create_checkbox "contamination"		"10" "40"		sound_contamination_input);
+		 (create_checkbox "reproduction"		"14" "40"		sound_heal_input);
+		 (create_checkbox "dead"						"18" "40"		sound_dead_input);
+		 (create_checkbox "max alive"				"22" "40"		sound_reproduction_input);
+		 (create_slider 	"reproduction" 		"20" "53"		reproduction_input);
+		 (create_slider 	"initial creets"	"20" "61"		initial_creets_input);
+		 (create_slider 	"contamination"		"20" "70"		contamination_input);
+		 (create_slider 	"evolution"				"20" "78"		evolution_input);
+		 (create_slider 	"speed"						"20" "86"		speed_input);
 	] in
 	let stats_html = [
 		(p ~a:[a_class ["stats_title"]][]);
 		(p ~a:[a_class ["stats"]][]);
 		(p ~a:[a_class ["text"]; a_style "top: 17vh; left: 83vw; font-size: 3vw"] [txt "14:50"]); (* TODO : here *)
-		(p ~a:[a_class ["text"]; a_style "top: 26vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt "Score: 424242"]);  (* TODO : here *)
+		(p ~a:[a_class ["text"]; a_style "top: 26vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt "Score: 424242"]);	(* TODO : here *)
 		(single_stat "reproduction" "Healed" "78" "39" "12"); (* TODO : here last val*)
 		(single_stat "max alive" "Max alive" "88" "39" "42"); (* TODO : here last val*)
 		(single_stat "contamination" "Contaminated" "78" "48" "20"); (* TODO : here last val*)
@@ -181,23 +278,7 @@ let pause_menu body : unit =
 	] in
 	let overlay = div ~a:[a_class ["pause_overlay"]] (pause_html @ settings_html @ stats_html) in
 
-	let sound_effects_node =	Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_effects_input in
-	let music_node =			    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input music_input in
-	let sound_contamination_node =		Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_contamination_input in
-	let sound_heal_node =		Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_heal_input in
-	let sound_dead_node =		Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_dead_input in
-	let sound_reproduction_node =		Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_reproduction_input in
-	let reproduction_node =		Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input reproduction_input in
-	let initial_creets_node =	Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input initial_creets_input in
-	let contamination_node =	Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input contamination_input in
-	let evolution_node =		  Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input evolution_input in
-	let speed_node =			    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input speed_input in
-	let close_node =			    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button close_button in
-	let retry_node =			    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button retry_button in
-	let easy_node =				    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button easy_button in
-	let normal_node =			    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button normal_button in
-	let hard_node =				    Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_button hard_button in
-	let overlay_node =			  Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div overlay in
+	let overlay_node =				Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div overlay in
 	Dom.appendChild body overlay_node;
 
 	(* a promise that only resolves when something explicitly triggers it *)
@@ -214,66 +295,4 @@ let pause_menu body : unit =
 	(* the closer callback for external callers, e.g. a keypress handler *)
 	close_modal := Some (fun () -> wakeup wakener ());
 
-	async (fun () ->
-		Lwt_js_events.clicks retry_node (fun ev _handler ->
-		Printf.printf "retry\n"; (* TODO : here *)
-		(* sound_effects_node##.value := js_string_of_float @@ mid_value (float_of_js_string sound_effects_node##.min) (float_of_js_string sound_effects_node##.max); *)
-		Lwt.return_unit
-	));
-
-	let set_slider_value slider value fun_of_value  = 
-		slider##.value := value;
-    fun_of_value value;
-	in
-
-  let music_fun v = 
-    Sounds.bgm_node##.volume := v |> float_of_js_string |> ( *. ) 0.01 |> Js.number_of_float;
-  in
-	(* Other callbacks for of the page, e.g. a slider / button *)
-	let setup_slider_listener (name: string) node_to_listen fun_of_value = Lwt.async (fun () ->
-		Lwt_js_events.inputs node_to_listen (fun _ev _handler ->
-			(* let v = Js.to_string node_to_listen##.value |> float_of_string in
-			Printf.printf "%s: %.0f\n" name v; *)
-			set_slider_value node_to_listen node_to_listen##.value fun_of_value;
-			Lwt.return_unit
-		);
-	); () in
-	setup_slider_listener "sound_effects" 	sound_effects_node  music_fun;
-	setup_slider_listener "music" 			    music_node          music_fun;
-	setup_slider_listener "reproduction" 	  reproduction_node		music_fun;
-	setup_slider_listener "initial_creets" 	initial_creets_node music_fun;
-	setup_slider_listener "contamination" 	contamination_node  music_fun;
-	setup_slider_listener "evolution" 		  evolution_node      music_fun;
-	setup_slider_listener "speed" 			    speed_node          music_fun;
-
-  let setup_checkbox_listener (name : string) node (on_toggle : bool -> unit) =
-    Lwt.async (fun () ->
-    Lwt_js_events.clicks node (fun _ev _handler ->
-      let is_checked = Js.to_bool node##.checked in
-      (* Printf.printf "%s: %b\n" name is_checked; *)
-      on_toggle is_checked;
-      Lwt.return_unit
-    )); () in
-	
-	let sound_check_fun = function
-	| true	-> Printf.printf "true\n" (* Enable sound for this sound effect *)
-	| false -> Printf.printf "false\n" (* Disable sound for this sound effect *) in
-	setup_checkbox_listener "sound_contamination" sound_contamination_node	sound_check_fun;
-	setup_checkbox_listener "sound_heal"					sound_heal_node						sound_check_fun;
-	setup_checkbox_listener "sound_dead"					sound_dead_node						sound_check_fun;
-	setup_checkbox_listener "sound_reproduction"	sound_reproduction_node		sound_check_fun;
-	
-	let setup_difficulty_buttons node_to_listen fn = async (fun () ->
-		Lwt_js_events.clicks node_to_listen (fun ev _handler ->
-    let new_val node = fn (float_of_js_string node##.min) (float_of_js_string node##.max) |> js_string_of_float in
-		set_slider_value reproduction_node	 (new_val reproduction_node)    music_fun;
-		set_slider_value initial_creets_node (new_val initial_creets_node)  music_fun;
-		set_slider_value contamination_node	 (new_val contamination_node) music_fun;
-		set_slider_value evolution_node		   (new_val evolution_node)  music_fun;
-		set_slider_value speed_node			     (new_val speed_node)   music_fun;
-		Lwt.return_unit
-	)); () in
-	setup_difficulty_buttons easy_node    (fun min max -> min);
-	setup_difficulty_buttons normal_node  (fun min max -> (max -. min) /. 2. +. min);
-	setup_difficulty_buttons hard_node    (fun min max -> max);
 	()
