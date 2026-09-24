@@ -1,35 +1,19 @@
 open Js_of_ocaml
 open Js_of_ocaml_tyxml.Tyxml_js.Html
 open Vector
-
-
 module Svg = Js_of_ocaml_tyxml.Tyxml_js.Svg
 
 
-type creet_state = Healthy | Sick | Mean | Berserk | Dead
+type t		= Types.creet
+type state	= Types.creet_state
+
+
 let string_of_state = function
-	| Healthy	-> "healthy"
-	| Sick		-> "sick"
-	| Mean		-> "mean"
-	| Berserk	-> "berserk"
-	| Dead		-> "dead"
-
-
-type t = {
-	id:					int;
-	mutable state:		creet_state;
-	mutable radius:		float;
-	mutable pos:		vec2;
-	mutable direction:	vec2;
-	mutable speed:		float;
-	mutable target:		int;
-	mutable time_sick:	float;
-	seed:				int;
-	random:				Random.State.t;
-}
-
-
-let minimum_radius: float = 1.
+	| Types.Healthy	-> "healthy"
+	| Types.Sick	-> "sick"
+	| Types.Mean	-> "mean"
+	| Types.Berserk	-> "berserk"
+	| Types.Dead	-> "dead"
 
 
 let style_string (creet: t) : string = 
@@ -37,13 +21,14 @@ let style_string (creet: t) : string =
 		| Mean	-> creet.radius *. 2. *. (1. -. 0.15)
 		| _		-> creet.radius *. 2.
 	in
-		
-	Printf.sprintf
-		"position: absolute; left: %.1fpx; top: %.1fpx;
-		 width: %.1fvw; height: %.1fvw; user-select: none; \
-		 transform: translate(-50%%, -50%%) rotate(%.1fdeg)"
-		creet.pos.x creet.pos.y diameter diameter (to_angle creet.direction +. 90.)
-		
+	let screen_x = creet.pos.x /. Params.simulation.width *. 100. in
+	let screen_y = creet.pos.y /. Params.simulation.height *. 100. in
+	Printf.sprintf "
+		position: absolute; left: %fvw; top: %fvh;
+		width: %.1fvw; height: %.1fvw; user-select: none;
+		transform: translate(-50%%, -50%%) rotate(%.1fdeg)
+	"	screen_x screen_y diameter diameter (to_angle creet.direction +. 90.)
+
 
 let create_img (creet : t) =
     img
@@ -109,7 +94,7 @@ let be_contaminated (creet: t): t =
 	| _ -> be_sick
 
 
-let set_state (state: creet_state) (creet: t) : t = 
+let set_state (state: state) (creet: t) : t = 
 	match state with
 	| Mean | Berserk when creet.state = Mean || creet.state = Berserk -> creet
 	| _ -> {creet with
@@ -132,10 +117,10 @@ let set_speed (speed: float) (creet: t) : t = { creet with
 		speed = speed;
 	}
 
-let create (seed: int) (id: int) =
+let create (seed: int) (id: int): t =
 	let creet_state = match id with
-		(* | 0 -> Mean *)
-		| _ -> Healthy
+		(* | 0 -> Types.Mean *)
+		| _ -> Types.Healthy
 	in
 	Random.init (seed + id);
 	{
@@ -146,7 +131,7 @@ let create (seed: int) (id: int) =
 		direction = vec2 (Float_t 1.) (Float_t 0.);
 		speed = 1.;
 		target = -1;
-		radius = minimum_radius;
+		radius = Params.creet.initial_radius;
 		pos = vec2 (Float_t 0.) (Float_t 0.);
 		time_sick = -1.;
 	}
@@ -162,6 +147,14 @@ let debug_creet (creet: t): unit =
 		(creet.direction.x)
 		(creet.direction.y)
 		(creet.speed)
+
+
+let avoidance (creet: t): float =
+	creet.radius *. Params.creet.safe_space#get ()
+
+	
+let avoidance2 (creet: t): float =
+	(avoidance creet) *. (avoidance creet)
 
 
 let advance (creet: t): t = 

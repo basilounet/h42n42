@@ -8,10 +8,10 @@ let generate_position (creet: Creet.t): vec2 =
 	let prev_rand	= Random.get_state () in
 	Random.set_state creet.random;
 	(* Printf.printf "%fx%f\n" (Behaviour.width ()) (Behaviour.height ()); *)
-	let minx	= (Behaviour.width ())  *. (Behaviour.window_margin ()) in
-	let miny	= (Behaviour.height ()) *. (Behaviour.window_margin ()) in
-	let randx	= minx +. (Random.float ((Behaviour.width ()) -. minx)) in
-	let randy	= miny +. (Random.float ((Behaviour.height ()) -. miny)) in
+	let minx	= Params.simulation.width  *. Params.creet.border_margin in
+	let miny	= Params.simulation.height *. Params.creet.border_margin in
+	let randx	= minx +. Random.float (Params.simulation.width -. minx) in
+	let randy	= miny +. Random.float (Params.simulation.height -. miny) in
 	let pos		= vec2 (Float_t randx) (Float_t randy) in
 	Random.set_state prev_rand;
 	pos
@@ -27,33 +27,27 @@ let generate_dir (creet: Creet.t): vec2 =
 	pos
 
 
-let spawn_creets (num: int): Troop.t = 
-	let troop: Troop.t = {
-		mutex	= Mutex.create ();
-		map		= Hashtbl.create (num * 2)
-	} in
-	for index = 0 to num - 1 do
+let spawn_creets (num: int): unit = 
+	for index = 1 to num do
 		let new_index = Utils.create_id () in
 		let new_creet = Creet.create 666 new_index in
 		new_creet.pos <- generate_position new_creet;
 		new_creet.direction <- generate_dir new_creet;
-		Hashtbl.add troop.map new_index new_creet;
-	done; 
-	troop
+		Hashtbl.add Params.simulation.troop new_index new_creet;
+	done
 
 
 let test_behaviour () =
 	Dom_html.window##.onload := Dom_html.handler (fun _ ->
 		let body = Dom_html.document##.body in
-    	Sounds.setup_background_music body;
+    		Sounds.setup_background_music body;
 		Background.create body |> ignore;
 		Event_listeners.setup_keypresses body;
 		(* Menus.pause_menu body; *)
-		let troop = spawn_creets 10 in
-		(* Mutex.lock !Behaviour.start_mutex; *)
-		Hashtbl.to_seq_values troop.map
-		|> Seq.iter (fun (creet: Creet.t) -> Behaviour.ready creet troop body);
-		(* Mutex.unlock !Behaviour.start_mutex; *)
+		spawn_creets 10;
+		Hashtbl.to_seq_values Params.simulation.troop
+		|> Seq.iter (fun (creet: Creet.t) -> Lwt.async (fun () -> Behaviour.run creet body));
+		Lwt.async (fun () -> Behaviour.simulation_loop ());
 		Js._true
 	)
 
