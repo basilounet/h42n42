@@ -5,20 +5,22 @@ open Js_of_ocaml_tyxml.Tyxml_js.Html
 
 
 let sound_effect_sound: float ref = ref 1.
-type sound_effect_type = SContamination | SHealing | SDeath | SReproduction
+type sound_effect_type = SContamination | SEvolution | SHealing | SDeath | SReproduction
 
-let activated_sounds = ref [true; true; true; true]
+let activated_sounds = ref [true; true; true; true; true]
 
 let sound_effect_type_to_int = function
-	| SContamination -> 0
-	| SHealing -> 1
-	| SDeath -> 2
-	| SReproduction -> 3
+	| SContamination	-> 0
+	| SEvolution			-> 1
+	| SHealing 				-> 2
+	| SDeath					-> 3
+	| SReproduction 	-> 4
 
 let sound_effect_type_to_source = function
 	| SContamination -> "/static/sounds/game/infected.wav"
+	| SEvolution -> "/static/sounds/game/evolution.wav"
 	| SHealing -> "/static/sounds/game/heal.wav"
-	| SDeath -> "/static/sounds/game/game_lost.wav"
+	| SDeath -> "/static/sounds/game/death_"^ (string_of_int (Random.int 8) ) ^".wav"
 	| SReproduction -> "/static/sounds/game/reproduction.wav"
 
 let toggle_sound (sound_type: sound_effect_type) =
@@ -62,3 +64,16 @@ let play_sound_effect (sound_type: sound_effect_type) : unit =
 	let audio_node = audio_node @@ sound_effect_type_to_source sound_type in
 	audio_node##.volume := Js.number_of_float !sound_effect_sound;
 	audio_node##play |> ignore
+
+let play_click (num: string) : unit = 
+  let source = "/static/sounds/UI/click_" ^ num ^ ".wav" in
+	let audio_node = audio_node source in
+	audio_node##.volume := Js.number_of_float !sound_effect_sound;
+	audio_node##play |> ignore
+
+let play_menu (action: string): unit = 
+  let source = "/static/sounds/UI/menu_" ^ action ^ ".wav" in
+	let audio_node = audio_node source in
+	audio_node##.volume := Js.number_of_float !sound_effect_sound;
+	audio_node##play |> ignore
+

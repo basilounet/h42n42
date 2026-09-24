@@ -281,7 +281,7 @@ let berserk_brain (creet: Creet.t): unit =
 
 
 let select_behaviour (creet: Creet.t): unit = 
-	Printf.printf "%b\b" creet.grabbed;
+	(* Printf.printf "%b\b" creet.grabbed; *)
 	match creet.grabbed with
 	| true			-> grabbed creet
 	| _				->

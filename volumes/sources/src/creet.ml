@@ -60,23 +60,26 @@ let update (body: #Dom.node Js.t) (creet : t) : t =
 
 
 let be_mean (creet: t): t =
+  Sounds.play_sound_effect Sounds.SEvolution;
 	creet.state		<- Mean;
 	creet.target	<- -1;
 	creet
 
 
 let be_berserk (creet: t): t =
+  Sounds.play_sound_effect Sounds.SEvolution;
 	creet.state <- Berserk;
 	creet
 
 
 let be_sick (creet: t): t =
+  Sounds.play_sound_effect Sounds.SContamination;
 	creet.state <- Sick;
 	creet
 
 
 let be_dead (creet: t): t =
-	Printf.printf "i am dead at %.0f\n" creet.time_sick;
+	(* Printf.printf "i am dead at %.0f\n" creet.time_sick; *)
 	creet.state <- Dead;
 	Sounds.play_sound_effect Sounds.SDeath;
 	let body = Dom_html.document##.body in
@@ -86,9 +89,8 @@ let be_dead (creet: t): t =
 
 
 let be_contaminated (creet: t): t =
-	let random_num = Random.int 10 in
+	let random_num = Random.int 3 in
 	creet.time_sick <- Unix.time ();
-	Sounds.play_sound_effect Sounds.SContamination;
 	creet |>
 	match random_num with
 	| 0	-> be_mean

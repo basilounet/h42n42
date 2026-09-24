@@ -42,7 +42,7 @@ let test_behaviour () =
 		Sounds.setup_background_music body;
 		Background.create body |> ignore;
 		Event_listeners.setup_keypresses body;
-		(* Menus.pause_menu body; *)
+		Menus.pause_menu body;
 		spawn_creets 20;
 		Hashtbl.to_seq_values Params.simulation.troop
 		|> Seq.iter (fun (creet: Creet.t) -> Lwt.async (fun () -> Behaviour.run creet body));

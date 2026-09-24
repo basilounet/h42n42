@@ -28,7 +28,7 @@
 	position: absolute;
 	top: 60vh; left: 50%;
 	width: 30vw; height: 70vh;
-	background-image: url('/static/images/UI/pause_1.png');
+	background-image: url('/static/images/UI/backgrounds/pause_1.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	transform: translate(-50%, -50%);
@@ -73,7 +73,7 @@
 	position: absolute;
 	top: 52vh; left: 17vw;
 	width: 30vw; height: 85vh;
-	background-image: url('/static/images/UI/statistics_2.png');
+	background-image: url('/static/images/UI/backgrounds/pause_4.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	transform: translate(-50%, -50%);
@@ -133,7 +133,7 @@
 	position: absolute;
 	top: 52vh; left: 83vw;
 	width: 30vw; height: 85vh;
-	background-image: url('/static/images/UI/statistics_2.png');
+	background-image: url('/static/images/UI/backgrounds/pause_4.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	transform: translate(-50%, -50%);

@@ -47,7 +47,7 @@ let simulation: simulation_variables = {
 
 
 let creet: creet_variables = {
-	initial_radius	=                  1.15;
+	initial_radius	=                  1.25;
 	border_margin	=                  0.10;
 	panic			= new accessible   1.05;
 	safe_space		= new accessible  50.  ;
