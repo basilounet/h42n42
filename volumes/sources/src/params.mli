@@ -14,6 +14,7 @@ type simulation_variables = {
 	river_start:	float;
 	delta_time:		float accessible;
 	mouse_pos:		Types.vec2 accessible;
+	grabbed_creet:	int accessible;
 	troop:			Types.troop;
 }
 
