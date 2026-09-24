@@ -17,6 +17,7 @@ type simulation_variables = {
 	river_start:	float;
 	delta_time:		float accessible;
 	mouse_pos:		Types.vec2 accessible;
+	grabbed_creet:	int accessible;
 	troop:			Types.troop;
 }
 
@@ -42,6 +43,7 @@ let simulation: simulation_variables = {
 	river_start		= simulation_width *. 0.9;
 	delta_time		= new accessible 0.;
 	mouse_pos		= new accessible @@ Vector.vec2 (Types.Vec_None) (Types.Vec_None);
+	grabbed_creet	= new accessible (-1);
 	troop			= Hashtbl.create 200;
 }
 

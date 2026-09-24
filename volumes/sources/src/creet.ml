@@ -98,6 +98,30 @@ let be_contaminated (creet: t): t =
 	| _ -> be_sick
 
 
+let be_healed (creet: t): t =
+	creet.state <- Healthy;
+	creet
+
+
+let be_grabbed (creet: t): t =
+	Params.simulation.grabbed_creet# set (creet.id);
+	creet.grabbed <- true;
+	creet
+
+
+let be_released (creet: t): t =
+	Params.simulation.grabbed_creet# set (-1);
+	creet.grabbed <- false;
+	match creet.state with
+	| Types.Sick	->
+		if Background.is_in_hospital creet.pos.x
+		then
+			be_healed creet
+		else
+			creet
+	| _				-> creet
+
+
 let create (seed: int) (id: int): t =
 	let creet_state = match id with
 		(* | 0 -> Types.Mean *)
@@ -110,7 +134,7 @@ let create (seed: int) (id: int): t =
 		state		= creet_state;
 		seed		= seed + id;
 		direction	= vec2 (Float_t 1.) (Float_t 0.);
-		speed		= 1000.;
+		speed		= 100.;
 		target		= -1;
 		radius		= Params.creet.initial_radius;
 		pos			= vec2 (Float_t 0.) (Float_t 0.);
