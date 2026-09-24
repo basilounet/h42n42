@@ -64,20 +64,12 @@ let get_wsize () : vec2 = match !grass_node with
 	| Some node	-> vec2 (Int (node##.width)) (Int (node##.height))
 
 
-let river_start (): float =
-	(get_wsize ()).x *. 0.9
-
-
 let is_in_river (x_coord: float): bool =
-	x_coord >= river_start ()
-
-
-let hospital_end (): float =
-	(get_wsize ()).x *. 0.1
+	x_coord >= Params.simulation.river_start
 
 
 let is_in_hospital (x_coord: float): bool =
-	x_coord <= hospital_end ()
+	x_coord <= Params.simulation.hospital_end
 
 
 let create body : vec2 = 

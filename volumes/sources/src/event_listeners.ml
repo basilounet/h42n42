@@ -7,32 +7,24 @@ open Js_of_ocaml_tyxml.Tyxml_js.Html
 let js_to_int num = num |> Js.float_of_number |> int_of_float
 
 
-let generate_creet (id: int) (pos: vec2) =
-	Creet.create 666 id 
-	|> Creet.set_pos		@@ pos
-	|> Creet.set_radius		@@ 1.
-	|> Creet.set_direction	@@ (from_angle 0.)
-
-
 let rec creet_loop body (creet : Creet.t) : unit Lwt.t =
 	ignore @@ Creet.update body creet;
 	Lwt.bind (Lwt_js.sleep 0.02) (fun () ->
 		creet_loop body (Creet.advance creet))
 
 
-let setup_click target (w_size:vec2) =
+let setup_click (target: #Dom_html.eventTarget Js.t) (w_size: vec2) =
 	Lwt.async (fun () ->
 		Lwt_js_events.clicks target (fun ev _handler ->
     match Menus.is_pause () with
     | true  -> Lwt.return_unit
     | false ->
-		(* let pos: vec2 = vec2 (Int_Tuple (Dom_html.elementClientPosition target)) None in *)
-		let pos = vec2 (Int (ev##.clientX |> js_to_int)) (Int (ev##.clientY |> js_to_int)) in
-		(* Printf.printf "pos x: %f, y: %f\n" pos.x pos.y; *)
-		Lwt.async (fun () -> generate_creet (Utils.create_id ()) pos |> creet_loop target);
+		(* let pos = vec2 (Int (ev##.clientX |> js_to_int)) (Int (ev##.clientY |> js_to_int)) in *)
+
 		Lwt.return_unit
 	));
 	()
+
 
 let setup_keypresses target =
 	Lwt.async (fun () -> Lwt_js_events.keypresses target (fun ev _handler ->

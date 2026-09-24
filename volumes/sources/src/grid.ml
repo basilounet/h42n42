@@ -6,7 +6,8 @@ type cell	= Types.cell
 
 
 let safe_space (): float =
-	Params.creet.safe_space#get ()
+	let safe_space_v = Params.creet.safe_space#get () in
+	safe_space_v *. safe_space_v *. Params.creet.initial_radius *. Params.creet.initial_radius
 
 
 let cell_from_size ~(safe_space: float) (size: float): int =
@@ -82,6 +83,8 @@ let possible_collisions (creet: Creet.t): Creet.t list =
 	let safe_space = safe_space () in
 	let cell_x = cell_from_size ~safe_space creet.pos.x in
 	let cell_y = cell_from_size ~safe_space creet.pos.y in
+
+	(* let check_radius = creet. *)
 
 	let clamp_x (x: 'a) = Utils.clamp x 0 (grid.cols - 1) in
 	let clamp_y (y: 'a) = Utils.clamp y 0 (grid.rows - 1) in

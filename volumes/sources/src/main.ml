@@ -7,7 +7,6 @@ open Vector
 let generate_position (creet: Creet.t): vec2 =
 	let prev_rand	= Random.get_state () in
 	Random.set_state creet.random;
-	(* Printf.printf "%fx%f\n" (Behaviour.width ()) (Behaviour.height ()); *)
 	let minx	= Params.simulation.width  *. Params.creet.border_margin in
 	let miny	= Params.simulation.height *. Params.creet.border_margin in
 	let randx	= minx +. Random.float (Params.simulation.width -. minx) in
@@ -40,11 +39,11 @@ let spawn_creets (num: int): unit =
 let test_behaviour () =
 	Dom_html.window##.onload := Dom_html.handler (fun _ ->
 		let body = Dom_html.document##.body in
-    		Sounds.setup_background_music body;
+		Sounds.setup_background_music body;
 		Background.create body |> ignore;
 		Event_listeners.setup_keypresses body;
 		(* Menus.pause_menu body; *)
-		spawn_creets 10;
+		spawn_creets 20;
 		Hashtbl.to_seq_values Params.simulation.troop
 		|> Seq.iter (fun (creet: Creet.t) -> Lwt.async (fun () -> Behaviour.run creet body));
 		Lwt.async (fun () -> Behaviour.simulation_loop ());

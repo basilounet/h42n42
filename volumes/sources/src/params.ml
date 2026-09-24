@@ -11,9 +11,13 @@ class ['a] accessible (init: 'a) =
 
 
 type simulation_variables = {
-	width:	float;
-	height:	float;
-	troop:	Types.troop;
+	width:			float;
+	height:			float;
+	hospital_end:	float;
+	river_start:	float;
+	delta_time:		float accessible;
+	mouse_pos:		Types.vec2 accessible;
+	troop:			Types.troop;
 }
 
 
@@ -30,19 +34,24 @@ type creet_variables = {
 }
 
 
+let simulation_width = 10000.
 let simulation: simulation_variables = {
-	width	= 1000.;
-	height	=  500.;
-	troop	= Hashtbl.create 200;
+	width			= simulation_width;
+	height			= simulation_width /. 2.;
+	hospital_end	= simulation_width *. 0.1;
+	river_start		= simulation_width *. 0.9;
+	delta_time		= new accessible 0.;
+	mouse_pos		= new accessible @@ Vector.vec2 (Types.Vec_None) (Types.Vec_None);
+	troop			= Hashtbl.create 200;
 }
 
 
 let creet: creet_variables = {
-	initial_radius	=                  1.  ;
+	initial_radius	=                  1.15;
 	border_margin	=                  0.10;
-	panic			= new accessible   0.05;
-	safe_space		= new accessible 100.  ;
-	stress			= new accessible   0.02;
+	panic			= new accessible   1.05;
+	safe_space		= new accessible  50.  ;
+	stress			= new accessible   0.04;
 	deviation		= new accessible   0.05;
 	chase			= new accessible   0.05;
 	infection		= new accessible   2   ; (* Is compared against a Random.int 100 *)

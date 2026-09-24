@@ -12,11 +12,6 @@ val be_contaminated : t													-> t
 val be_dead			: t													-> t
 
 val create  		: int										-> int	-> t
-val set_state   	: state										-> t	-> t
-val set_radius		: float      								-> t	-> t
-val set_pos			: vec2   	 								-> t	-> t
-val set_direction	: vec2		 								-> t	-> t
-val set_speed 		: float      								-> t	-> t
 val advance			: t													-> t
 val	avoidance		: t													-> float
 val	avoidance2		: t													-> float

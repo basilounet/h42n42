@@ -17,6 +17,7 @@ type creet = {
 	mutable speed:		float;
 	mutable target:		int;
 	mutable time_sick:	float;
+	mutable grabbed:	bool;
 	seed:				int;
 	random:				Random.State.t;
 }

@@ -8,9 +8,13 @@ class ['a] accessible: 'a	->
 
 
 type simulation_variables = {
-	width:	float;
-	height:	float;
-	troop:	Types.troop;
+	width:			float;
+	height:			float;
+	hospital_end:	float;
+	river_start:	float;
+	delta_time:		float accessible;
+	mouse_pos:		Types.vec2 accessible;
+	troop:			Types.troop;
 }
 
 

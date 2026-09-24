@@ -29,12 +29,15 @@ let river_contamination (creet: Creet.t): Creet.t =
 
 let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 	let can_infect (creet1: Creet.t) (creet2: Creet.t): bool =
-		match creet1.state with
-		| Healthy	-> false
+		match creet2.grabbed with
+		| true		-> false
 		| _			->
-			match creet2.state with
-			| Healthy	-> true
-			| _			-> false
+			match creet1.state with
+			| Healthy	-> false
+			| _			->
+				match creet2.state with
+				| Healthy	-> true
+				| _			-> false
 	in
 
 	let infect_creet (other_creet: Creet.t): unit =
@@ -91,6 +94,10 @@ let ask_to_die (creet: Creet.t): Creet.t =
 		creet
 
 
+let grabbed (creet: Creet.t): unit =
+	creet.pos <- Params.simulation.mouse_pos#get ()
+
+
 (* Brain Behaviours *)
 let avoid_bounds (creet: Creet.t): Creet.t =
 	let width	= Params.simulation.width in
@@ -137,10 +144,11 @@ let avoid_creets (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 
 	let correct_trajectory (other_creet: Creet.t): unit =
 		if creet != other_creet then begin
-			let distance = creet.pos |-| other_creet.pos in
-			if distance < Creet.avoidance creet && distance > 0. then begin
+			let distance = creet.pos |--| other_creet.pos in
+			if distance < Creet.avoidance2 creet && distance > 0. then begin
+				let avoidance = Creet.avoidance2 creet in
 				let push_dir = creet.pos |> sub other_creet.pos in
-				let strength = ((Creet.avoidance creet) -. distance) /. (Creet.avoidance creet) in
+				let strength = ((avoidance) -. distance) /. (avoidance) *. (Params.simulation.delta_time#get ()) in
 				delta := push_dir |> stretch strength |> add !delta
 			end
 		end
@@ -273,6 +281,10 @@ let berserk_brain (creet: Creet.t): unit =
 
 
 let select_behaviour (creet: Creet.t): unit = 
+	Printf.printf "%b\b" creet.grabbed;
+	match creet.grabbed with
+	| true			-> grabbed creet
+	| _				->
 	match creet.state with
 	| Types.Healthy -> healthy_brain creet
 	| Types.Sick	-> sick_brain creet
@@ -294,32 +306,32 @@ let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 	)
 
 
+let last_time: float ref	= ref @@ Unix.gettimeofday ()
 
-let last_time: float ref = ref @@ Unix.gettimeofday ()
 
 open Js_of_ocaml_tyxml.Tyxml_js
 open Js_of_ocaml_tyxml.Tyxml_js.Html
 
+
 let fps_text = (div ~a:[a_id "fps"; a_class ["text"]; a_style "top: 73vh; left: 45vw"][txt @@ string_of_float (!last_time /. 60.)])
 let fps_text_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div fps_text
 
+
 let already_setup = ref false
+
 
 let one_time_setup_listeners () : unit =
 	match !already_setup with
 	| true -> ()
 	| false -> already_setup := true; Dom.appendChild (Dom_html.document##.body) fps_text_node
 
-let rec simulation_loop (): unit Lwt.t =
-  let new_time = Unix.gettimeofday () in
-  let delta_time: float = new_time -. !last_time in
-  last_time := new_time;
 
-  one_time_setup_listeners ();
- 
-  (* Printf.printf "fps: %f\n" @@ 1. /. delta_time; *)
-    fps_text_node##.textContent := Js.some (Js.string (string_of_float @@ Float.floor @@ 1. /. delta_time));  
-  (* fps_text_node##.nodeValue = (Js.string @@ string_of_float @@ 1. /. delta_time) |> ignore; *)
+let rec simulation_loop (): unit Lwt.t =
+	let new_time = Unix.gettimeofday () in
+	Params.simulation.delta_time#set (new_time -. !last_time);
+	last_time := new_time;
+	one_time_setup_listeners ();
+	fps_text_node##.textContent := Js.some (Js.string (string_of_float @@ Float.floor @@ 1. /. (Params.simulation.delta_time#get ())));
 
 	Grid.clear ();
 	Hashtbl.to_seq_values Params.simulation.troop

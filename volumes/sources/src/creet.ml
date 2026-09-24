@@ -78,7 +78,7 @@ let be_sick (creet: t): t =
 let be_dead (creet: t): t =
 	Printf.printf "i am dead at %.0f\n" creet.time_sick;
 	creet.state <- Dead;
-  Sounds.play_sound_effect Sounds.SDeath;
+	Sounds.play_sound_effect Sounds.SDeath;
 	let body = Dom_html.document##.body in
 	let node = Hashtbl.find creet_nodes creet.id in
 	Dom.removeChild body node;
@@ -88,36 +88,13 @@ let be_dead (creet: t): t =
 let be_contaminated (creet: t): t =
 	let random_num = Random.int 10 in
 	creet.time_sick <- Unix.time ();
-  Sounds.play_sound_effect Sounds.SContamination;
+	Sounds.play_sound_effect Sounds.SContamination;
 	creet |>
 	match random_num with
 	| 0	-> be_mean
 	| 1 -> be_berserk
 	| _ -> be_sick
 
-
-let set_state (state: state) (creet: t) : t = 
-	match state with
-	| Mean | Berserk when creet.state = Mean || creet.state = Berserk -> creet
-	| _ -> {creet with
-		state = state
-		}
-
-let set_radius (radius: float) (creet: t) : t = { creet with
-		radius = radius;
-	}
-
-let set_pos (pos: vec2) (creet: t): t = { creet with
-		pos = pos;
-	}
-
-let set_direction (direction: vec2) (creet: t) : t = { creet with
-		direction = direction;
-	}
-
-let set_speed (speed: float) (creet: t) : t = { creet with
-		speed = speed;
-	}
 
 let create (seed: int) (id: int): t =
 	let creet_state = match id with
@@ -126,16 +103,17 @@ let create (seed: int) (id: int): t =
 	in
 	Random.init (seed + id);
 	{
-		random = Random.get_state ();
-		id = id;
-		state = creet_state;
-		seed = seed + id;
-		direction = vec2 (Float_t 1.) (Float_t 0.);
-		speed = 1.;
-		target = -1;
-		radius = Params.creet.initial_radius;
-		pos = vec2 (Float_t 0.) (Float_t 0.);
-		time_sick = -1.;
+		random		= Random.get_state ();
+		id			= id;
+		state		= creet_state;
+		seed		= seed + id;
+		direction	= vec2 (Float_t 1.) (Float_t 0.);
+		speed		= 1000.;
+		target		= -1;
+		radius		= Params.creet.initial_radius;
+		pos			= vec2 (Float_t 0.) (Float_t 0.);
+		time_sick	= -1.;
+		grabbed		= false;
 	}
 
 
@@ -164,7 +142,7 @@ let advance (creet: t): t =
 		| Healthy	-> creet.speed
 		| _			-> creet.speed *. (1. -. 0.15)
 	in
-	creet.pos <- creet.direction |> stretch creet_speed |> add creet.pos;
+	creet.pos <- creet.direction |> stretch (creet_speed *. Params.simulation.delta_time#get ()) |> add creet.pos;
 	creet
 
 	
