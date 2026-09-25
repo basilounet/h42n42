@@ -31,6 +31,8 @@ type creet_variables = {
 	deviation:		float accessible;
 	chase:			float accessible;
 	infection:		int   accessible;
+	berserk_growth:	float accessible;
+	mutation_timer:	float accessible;
 	death_timer:	float accessible;
 }
 
@@ -57,6 +59,8 @@ let creet: creet_variables = {
 	deviation		= new accessible   0.05;
 	chase			= new accessible   0.05;
 	infection		= new accessible   2   ; (* Is compared against a Random.int 100 *)
+	berserk_growth	= new accessible   0.01;
+	mutation_timer	= new accessible  10.  ; (* Check per x/s *)
 	death_timer		= new accessible  60.  ;
 }
 

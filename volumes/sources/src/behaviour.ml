@@ -45,12 +45,13 @@ let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 			&& other_creet != creet
 			&& can_infect creet other_creet
 			&& creet.pos |--| other_creet.pos < Creet.avoidance2 creet
-		then
+		then begin
 			if Random.int 100 < Params.creet.infection#get ()
 			then
 				ignore @@ Creet.be_contaminated other_creet
 			else
 				()
+		end
 	in
 
 	List.iter infect_creet neighbors;
@@ -58,7 +59,8 @@ let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 
 
 let berserk_growth (creet: Creet.t): Creet.t =
-	creet.radius <- creet.radius *. 1.001;
+	let growth = 1. +. (Params.creet.berserk_growth#get ()) *. Params.simulation.delta_time#get () in
+	creet.radius <- creet.radius *. growth;
 	if creet.radius > Params.creet.initial_radius *. 4.
 	then
 		Creet.be_dead creet
@@ -68,7 +70,7 @@ let berserk_growth (creet: Creet.t): Creet.t =
 
 let mean_new_target (troop: Types.troop) (creet: Creet.t): Creet.t =
 	let viable_targets = Hashtbl.to_seq_values troop
-		|> Seq.filter (fun (c: Creet.t) -> c.state = Healthy && c.id <> creet.target)
+		|> Seq.filter (fun (c: Creet.t) -> c.state = Healthy && c.id <> creet.target && c.grabbed = false)
 	in
 	let num_targets = Seq.length viable_targets in
 	if num_targets > 0
@@ -90,6 +92,14 @@ let ask_to_die (creet: Creet.t): Creet.t =
 	if Unix.time () -. creet.time_sick > Params.creet.death_timer#get ()
 	then
 		Creet.be_dead creet
+	else
+		creet
+
+
+let ask_to_mutate (creet: Creet.t): Creet.t =
+	if Unix.time () -. creet.time_sick > Params.creet.mutation_timer#get ()
+	then
+		Creet.be_contaminated creet
 	else
 		creet
 
@@ -199,7 +209,9 @@ let rec chase_creet (troop: Types.troop) (creet: Creet.t): Creet.t =
 	let chase_target () = 
 		let target		= Hashtbl.find troop creet.target in
 		let dist2		= target.pos |--| creet.pos in
-		if dist2 < (Creet.avoidance2 target)
+		if false
+			|| dist2 < (Creet.avoidance2 target)
+			|| target.grabbed = true
 		then
 			mean_new_target troop creet
 		else begin
@@ -219,7 +231,7 @@ let rec chase_creet (troop: Types.troop) (creet: Creet.t): Creet.t =
 	in
 
 	let no_target () =
-		creet
+		mean_new_target troop creet
 	in
 
 	if true
@@ -254,6 +266,7 @@ let sick_brain (creet: Creet.t): unit =
 		|> avoid_creets neighbors
 		|> random_deviation
 		|> creet_contamination neighbors
+		|> ask_to_mutate
 		|> Creet.advance
 	)
 

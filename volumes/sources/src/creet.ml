@@ -79,7 +79,7 @@ let be_sick (creet: t): t =
 
 
 let be_dead (creet: t): t =
-	(* Printf.printf "i am dead at %.0f\n" creet.time_sick; *)
+	let time_took = Unix.time () -. creet.time_sick in
 	creet.state <- Dead;
 	Sounds.play_sound_effect Sounds.SDeath;
 	let body = Dom_html.document##.body in
@@ -89,8 +89,14 @@ let be_dead (creet: t): t =
 
 
 let be_contaminated (creet: t): t =
-	let random_num = Random.int 3 in
+	let play_contamination_sound () = 
+		match creet.state with
+		| Healthy -> Sounds.play_sound_effect Sounds.SContamination
+		| _		  -> ()
+	in
+	let random_num = Random.State.int creet.random 10 in
 	creet.time_sick <- Unix.time ();
+	play_contamination_sound ();
 	creet |>
 	match random_num with
 	| 0	-> be_mean
@@ -133,7 +139,7 @@ let create (seed: int) (id: int): t =
 		state		= creet_state;
 		seed		= seed + id;
 		direction	= vec2 (Float_t 1.) (Float_t 0.);
-		speed		= 100.;
+		speed		= 1000.;
 		target		= -1;
 		radius		= Params.creet.initial_radius;
 		pos			= vec2 (Float_t 0.) (Float_t 0.);
