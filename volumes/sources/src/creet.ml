@@ -79,7 +79,6 @@ let be_sick (creet: t): t =
 
 
 let be_dead (creet: t): t =
-	let time_took = Unix.time () -. creet.time_sick in
 	creet.state <- Dead;
 	Sounds.play_sound_effect Sounds.SDeath;
 	let body = Dom_html.document##.body in
