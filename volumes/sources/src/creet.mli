@@ -6,6 +6,7 @@ type t		= Types.creet
 type state	= Types.creet_state
 
 
+val string_of_state : state												-> string
 val style_string 	: t													-> string
 val update			: #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t	-> t	-> t
 val be_contaminated : t													-> t

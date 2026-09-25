@@ -83,17 +83,18 @@ let possible_collisions (creet: Creet.t): Creet.t list =
 	let cell_x = cell_from_size ~safe_space creet.pos.x in
 	let cell_y = cell_from_size ~safe_space creet.pos.y in
 
-	(* let check_radius = creet. *)
-
+	let check_radius = (creet.radius /. Params.creet.initial_radius) |> Float.ceil |> Float.to_int in
+	Printf.printf "Checking a radius of %d for %s\n" (check_radius) (Creet.string_of_state creet.state);
+	
 	let clamp_x (x: 'a) = Utils.clamp x 0 (grid.cols - 1) in
 	let clamp_y (y: 'a) = Utils.clamp y 0 (grid.rows - 1) in
 	let neighbors = ref [] in
 
-	for iter_y = clamp_y (cell_y - 1)
-	to clamp_y (cell_y + 1)
+	for iter_y = clamp_y (cell_y - check_radius)
+	to clamp_y (cell_y + check_radius)
 	do
-		for iter_x = clamp_x (cell_x - 1)
-		to clamp_x (cell_x + 1)
+		for iter_x = clamp_x (cell_x - check_radius)
+		to clamp_x (cell_x + check_radius)
 		do
 			(cell_of_ints (cell_x) (cell_y))
 			|> List.iter (fun (other: Creet.t) -> 
