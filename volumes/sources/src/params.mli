@@ -2,8 +2,9 @@
 
 class ['a] accessible: 'a	->
 	object
-		method get: unit	-> 'a
-		method set: 'a		-> unit
+		method get: unit					-> 'a
+		method set: 'a						-> unit
+		method add: ('a -> 'a -> 'a) -> 'a	-> unit
 	end
 
 
@@ -21,6 +22,7 @@ type simulation_variables = {
 
 type creet_variables = {
 	initial_radius:	float;
+	initial_speed:	float;
 	border_margin:	float;
 	panic:			float accessible;
 	safe_space:		float accessible;

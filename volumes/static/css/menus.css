@@ -142,11 +142,12 @@
 .single_stat {
 	position: absolute;
 	top: 52vh; left: 83vw;
-	width: 5vw; height: 10vh;
+	width: 10vw; height: 10vh;
 	/* background-image: url('/static/images/UI/icons/reproduction.png'); */
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	transform: translate(-50%, -50%);
+	margin: 0;
 }
 
 .divider {
@@ -168,12 +169,13 @@
 
 .text {
 	position: absolute;
-	top: 64vh; left: 50vw;
+	top: 69vh; left: 50vw;
 	width: 15vw; height: 3vh;
 	font-size: 1.5vw;
 	transform: translate(-50%, -50%);
 	text-align: center;
 	text-justify: auto;
+	margin: 0;
 }
 
 .difficulty {

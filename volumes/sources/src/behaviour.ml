@@ -59,11 +59,9 @@ let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 
 let berserk_growth (creet: Creet.t): Creet.t =
 	creet.radius <- creet.radius *. 1.001;
-	if creet.radius > Params.creet.initial_radius *. 4.
-	then
-		Creet.be_dead creet
-	else
-		creet
+  match creet.radius with 
+  | r when r > Params.creet.initial_radius *. 4. -> Creet.be_dead creet
+	| _ -> creet
 
 
 let mean_new_target (troop: Types.troop) (creet: Creet.t): Creet.t =
@@ -310,30 +308,13 @@ let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 
 let last_time: float ref	= ref @@ Unix.gettimeofday ()
 
-
-open Js_of_ocaml_tyxml.Tyxml_js
-open Js_of_ocaml_tyxml.Tyxml_js.Html
-
-
-let fps_text = (div ~a:[a_id "fps"; a_class ["text"]; a_style "top: 73vh; left: 45vw"][txt @@ string_of_float (!last_time /. 60.)])
-let fps_text_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div fps_text
-
-
-let already_setup = ref false
-
-
-let one_time_setup_listeners () : unit =
-	match !already_setup with
-	| true -> ()
-	| false -> already_setup := true; Dom.appendChild (Dom_html.document##.body) fps_text_node
-
-
 let rec simulation_loop (): unit Lwt.t =
 	let new_time = Unix.gettimeofday () in
-	Params.simulation.delta_time#set (new_time -. !last_time);
+  let delta_time = new_time -. !last_time in
+	Params.simulation.delta_time#set (delta_time);
 	last_time := new_time;
-	one_time_setup_listeners ();
-	fps_text_node##.textContent := Js.some (Js.string (string_of_float @@ Float.floor @@ 1. /. (Params.simulation.delta_time#get ())));
+  Statistics.stats.time_elapsed#add (+.) delta_time;
+  Background.update_stats ();
 
 	Grid.clear ();
 	Hashtbl.to_seq_values Params.simulation.troop
@@ -342,4 +323,3 @@ let rec simulation_loop (): unit Lwt.t =
 	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun _ ->
 		simulation_loop ()
 	)
-

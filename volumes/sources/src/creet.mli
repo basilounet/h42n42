@@ -14,7 +14,7 @@ val be_grabbed		: t													-> t
 val be_released		: t													-> t
 
 
-val create  		: int										-> int	-> t
+val create  		: ?fake:bool -> int									-> int	-> t
 val advance			: t													-> t
 val	avoidance		: t													-> float
 val	avoidance2		: t													-> float

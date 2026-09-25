@@ -36,21 +36,18 @@ let spawn_creets (num: int): unit =
 	done
 
 
-let test_behaviour () =
+let () =
 	Dom_html.window##.onload := Dom_html.handler (fun _ ->
 		let body = Dom_html.document##.body in
 		Sounds.setup_background_music body;
-		Background.create body |> ignore;
+		Background.create body;
 		Event_listeners.setup_keypresses body;
 		Event_listeners.setup_click body;
 		Event_listeners.track_cursor body;
-		Menus.pause_menu body;
-		spawn_creets 20;
+		(* Menus.pause_menu body; *)
+		spawn_creets 150;
 		Hashtbl.to_seq_values Params.simulation.troop
 		|> Seq.iter (fun (creet: Creet.t) -> Lwt.async (fun () -> Behaviour.run creet body));
 		Lwt.async (fun () -> Behaviour.simulation_loop ());
 		Js._true
 	)
-
-let () =
-	test_behaviour ()

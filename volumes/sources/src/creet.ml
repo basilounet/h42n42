@@ -10,16 +10,16 @@ type state	= Types.creet_state
 
 let string_of_state = function
 	| Types.Healthy	-> "healthy"
-	| Types.Sick		-> "sick"
-	| Types.Mean		-> "mean"
-	| Types.Berserk	-> "berserk"
-	| Types.Dead		-> "dead"
+	| Sick		-> "sick"
+	| Mean		-> "mean"
+	| Berserk	-> "berserk"
+	| Dead		-> "dead"
 
 
 let style_string (creet: t) : string = 
 	let diameter = match creet.state with
 		| Mean	-> creet.radius *. 2. *. (1. -. 0.15)
-		| _		-> creet.radius *. 2.
+		| _			-> creet.radius *. 2.
 	in
 	let screen_x = creet.pos.x /. Params.simulation.width *. 100. in
 	let screen_y = creet.pos.y /. Params.simulation.height *. 100. in
@@ -32,7 +32,7 @@ let style_string (creet: t) : string =
 
 let create_img (creet : t) =
 	img
-		~src:"/static/images/creets/creet_healthy.png"
+		~src:"/static/images/creets/healthy.png"
 		~alt:(string_of_int creet.id)
 		~a:[a_id (string_of_int creet.id); a_draggable false]
 		()
@@ -55,12 +55,13 @@ let get_or_create_node (body: #Dom.node Js.t) (creet : t) : Dom_html.imageElemen
 let update (body: #Dom.node Js.t) (creet : t) : t =
 	let node = get_or_create_node body creet in
 	node##.style##.cssText := Js.string @@ style_string creet;
-	node##.src := Js.string @@ "static/images/creets/creet_" ^ (string_of_state creet.state) ^ ".png";
+	node##.src := Js.string @@ "static/images/creets/" ^ (string_of_state creet.state) ^ ".png";
 	creet
 
 
 let be_mean (creet: t): t =
 	Sounds.play_sound_effect Sounds.SEvolution;
+	Statistics.change_creet_state creet Mean;
 	creet.state		<- Mean;
 	creet.target	<- -1;
 	creet
@@ -68,20 +69,21 @@ let be_mean (creet: t): t =
 
 let be_berserk (creet: t): t =
 	Sounds.play_sound_effect Sounds.SEvolution;
+	Statistics.change_creet_state creet Berserk;
 	creet.state <- Berserk;
 	creet
 
 
 let be_sick (creet: t): t =
 	Sounds.play_sound_effect Sounds.SContamination;
+	Statistics.change_creet_state creet Sick;
 	creet.state <- Sick;
 	creet
 
-
 let be_dead (creet: t): t =
-	(* Printf.printf "i am dead at %.0f\n" creet.time_sick; *)
-	creet.state <- Dead;
 	Sounds.play_sound_effect Sounds.SDeath;
+	Statistics.change_creet_state creet Dead;
+	creet.state <- Dead;
 	let body = Dom_html.document##.body in
 	let node = Hashtbl.find creet_nodes creet.id in
 	Dom.removeChild body node;
@@ -99,6 +101,7 @@ let be_contaminated (creet: t): t =
 
 
 let be_healed (creet: t): t =
+	Statistics.change_creet_state creet Healthy;
 	creet.state <- Healthy;
 	creet
 
@@ -115,25 +118,24 @@ let be_released (creet: t): t =
 	match creet.state with
 	| Types.Sick	-> begin
 		match Background.is_in_hospital creet.pos.x with
-		| true -> Sounds.play_sound_effect Sounds.SHealing; be_healed creet
+		| true -> 
+		Sounds.play_sound_effect Sounds.SHealing; 
+		be_healed creet
 		| false ->creet
 	end
 	| _				-> creet
 
 
-let create (seed: int) (id: int): t =
-	let creet_state = match id with
-		(* | 0 -> Types.Mean *)
-		| _ -> Types.Healthy
-	in
+let create ?(fake = false) (seed: int) (id: int): t =
+	if not fake then Statistics.add_creet ();
 	Random.init (seed + id);
 	{
 		random		= Random.get_state ();
 		id			= id;
-		state		= creet_state;
+		state		= Healthy;
 		seed		= seed + id;
 		direction	= vec2 (Float_t 1.) (Float_t 0.);
-		speed		= 100.;
+		speed		= Params.creet.initial_speed;
 		target		= -1;
 		radius		= Params.creet.initial_radius;
 		pos			= vec2 (Float_t 0.) (Float_t 0.);

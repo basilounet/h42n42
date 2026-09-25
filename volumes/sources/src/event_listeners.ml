@@ -18,7 +18,7 @@ let try_grab (): Creet.t option =
 			false
 	in
 
-	let fake_creet = Creet.create (-1) (-1) in
+	let fake_creet = Creet.create ~fake:true (-1) (-1) in
 	fake_creet.pos <- mouse_pos;
 	(Grid.possible_collisions fake_creet)
 	|> List.find_opt is_creet_clicked

@@ -91,6 +91,10 @@ let my_pie curr_alive contaminated evolution dead = make_pie_chart
 		{ value = 3.; color = "#000000"; icon = "/static/images/UI/icons/dead.png" };
 	]
 
+type live_stat = {
+	elt : Html_types.div_content elt;
+	set : string -> unit;
+}
 let close_button = button ~a:[a_class ["pause_button"]; a_id "return_button"] [txt "Go back to Game"]
 let retry_button = button ~a:[a_class ["pause_button"]; a_id "retry_button"; a_style "top: 60vh; left: 50%;"] [txt "Retry"]
 let easy_button = button ~a:[a_class ["difficulty"]; a_id "box_easy"	; a_style "left: 45vw;"][]
@@ -102,13 +106,13 @@ let slider_input (id: string) (min: int) (max: int) (step: float) (value: string
 		a_input_min (`Number min); a_input_max (`Number max);
 		a_value value; a_step (Some step) ]
 	
-let sound_effects_input =		slider_input "sound_effects" 	0 1   0.05	"50"
+let sound_effects_input =		slider_input "sound_effects" 	0 1	 0.05	"50"
 let music_input =						slider_input "music"					0 1 	0.05	"0"	
-let reproduction_input =		slider_input "reproduction"		0 10  1.	  "50"
-let initial_creets_input =	slider_input "initial_creets"	0 10  1.	  "50"
-let contamination_input =		slider_input "contamination"	0 10  1.	  "50"
-let evolution_input =				slider_input "evolution"			0 10  1.	  "50"
-let speed_input = 					slider_input "speed" 					0 10  1.	  "50"
+let reproduction_input =		slider_input "reproduction"		0 10	1.		"50"
+let initial_creets_input =	slider_input "initial_creets"	0 10	1.		"50"
+let contamination_input =		slider_input "contamination"	0 10	1.		"50"
+let evolution_input =				slider_input "evolution"			0 10	1.		"50"
+let speed_input = 					slider_input "speed" 					0 10	1.		"50"
 
 let checkbox_input (id : string) (checked : bool) =
 	let base_attrs = [a_input_type `Checkbox; a_id id; a_class ["custom_checkbox"]] in
@@ -123,7 +127,7 @@ let sound_reproduction_input =	checkbox_input "sound_reproduction" true
 let create_slider (icon: string) (x: string) (y: string) slider =
 div ~a:[a_class ["slider"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id icon] [
 	p ~a:[a_class ["slider_icon"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
-	p ~a:[a_class ["text"]; a_style "top: -30%; left: 50%"]	[txt icon];
+	p ~a:[a_class ["text"]; a_style "top: 0; left: 50%"]	[txt icon];
 	slider;
 ]
 
@@ -134,10 +138,10 @@ div ~a:[a_style ("position:absolute;left:"^x^"vw;top:"^y^"vh;width:3vw;height:3v
 ]
 
 let single_stat (icon: string) (name: string) (x: string) (y: string) (value: string) = 
-div ~a:[a_class ["single_stat"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id name] [
-	p ~a:[a_class ["single_stat"]; a_style ("left:0vw;top:0vh;background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
-	p ~a:[a_class ["text"]; a_style "top: 1vh; left: 5vw"; a_id (name^"_value")] [txt value];
-	p ~a:[a_class ["text"]; a_style "top: 6vh; left: 5vw; font-size:0.8vw"; a_id (name^"_id")] [txt name];
+div ~a:[a_class ["single_stat"]; a_style ("left:"^x^"%;top:"^y^"%"); a_id name] [
+	p ~a:[a_class ["single_stat"]; a_style ("width:5vw;left:25%;top:37.5%;background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
+	p ~a:[a_class ["text"]; a_style "top: 30%; left: 70%"; a_id (name^"_value")] [txt value];
+	p ~a:[a_class ["text"]; a_style "top: 70%; left: 70%; font-size:0.8vw"; a_id (name^"_id")] [txt name];
 ]
 
 let sound_effects_node =			Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_effects_input
@@ -168,7 +172,7 @@ let music_fun v =
 
 let unused_fun v = (* TODO : remove when everything is implemented *)
 	(* Sounds.bgm_node##.volume := number_of_js_string v *)
-  ()
+	()
 
 let sound_effect_fun v = 
 	(* Printf.printf "v: %s, sound_effect_sound: %f\n" (Js.to_string v) !Sounds.sound_effect_sound; *)
@@ -180,7 +184,7 @@ let setup_slider_listener (name: string) node_to_listen fun_of_value =
 		(* let v = Js.to_string node_to_listen##.value |> float_of_string in
 		Printf.printf "%s: %.0f\n" name v; *)
 		set_slider_value node_to_listen node_to_listen##.value fun_of_value;
-    Sounds.play_click "3";
+		Sounds.play_click "3";
 
 		Lwt.return_unit
 	)); ()
@@ -190,7 +194,7 @@ let setup_checkbox_listener (name : string) (sound_type: Sounds.sound_effect_typ
 	Lwt_js_events.clicks node (fun _ev _handler ->
 		(* let is_checked = Js.to_bool node##.checked in *)
 		(* Printf.printf "%s: %b\n" name is_checked; *)
-    Sounds.play_click @@ string_of_int (Random.int 4);
+		Sounds.play_click @@ string_of_int (Random.int 4);
 		on_toggle sound_type ;
 		Lwt.return_unit
 	)); ()
@@ -201,14 +205,14 @@ let sound_check_fun (sound_type: Sounds.sound_effect_type) =
 
 let setup_difficulty_buttons node_to_listen fn = async (fun () ->
 	Lwt_js_events.clicks node_to_listen (fun ev _handler ->
-  Sounds.play_click @@ string_of_int (Random.int 4);
+	Sounds.play_click @@ string_of_int (Random.int 4);
 	let new_val node = fn (float_of_js_string node##.min) (float_of_js_string node##.max) |> js_string_of_float in
-  (* Printf.printf "new_val: %s\n" @@ Js.to_string @@ new_val reproduction_node; *)
+	(* Printf.printf "new_val: %s\n" @@ Js.to_string @@ new_val reproduction_node; *)
 	set_slider_value reproduction_node	 (new_val reproduction_node)		unused_fun;
 	set_slider_value initial_creets_node (new_val initial_creets_node)	unused_fun;
-	set_slider_value contamination_node	 (new_val contamination_node)   unused_fun;
-	set_slider_value evolution_node			 (new_val evolution_node)	      unused_fun;
-	set_slider_value speed_node					 (new_val speed_node)	          unused_fun;
+	set_slider_value contamination_node	 (new_val contamination_node)	 unused_fun;
+	set_slider_value evolution_node			 (new_val evolution_node)				unused_fun;
+	set_slider_value speed_node					 (new_val speed_node)						unused_fun;
 	Lwt.return_unit
 )); ()
 
@@ -222,7 +226,7 @@ let one_time_setup_listeners () : unit =
 	async (fun () ->
 		Lwt_js_events.clicks retry_node (fun ev _handler ->
 		Printf.printf "retry\n"; (* TODO : here *)
-    Sounds.play_click @@ string_of_int (Random.int 4);
+		Sounds.play_click @@ string_of_int (Random.int 4);
 		(* sound_effects_node##.value := js_string_of_float @@ mid_value (float_of_js_string sound_effects_node##.min) (float_of_js_string sound_effects_node##.max); *)
 		Lwt.return_unit
 	));
@@ -254,9 +258,9 @@ let pause_menu body : unit =
 		(close_button);
 		(retry_button);
 		(p ~a:[a_class ["text"]; a_style "font-size: 2.2vw;"][txt "Difficulty"]);
-		(p ~a:[a_class ["text"]; a_style "top: 73vh; left: 45vw"][txt "Easy"]);
-		(p ~a:[a_class ["text"]; a_style "top: 73vh; left: 50vw"][txt "Normal"]);
-		(p ~a:[a_class ["text"]; a_style "top: 73vh; left: 55vw"][txt "Hard"]);
+		(p ~a:[a_class ["text"]; a_style "top: 77vh; left: 45vw"][txt "Easy"]);
+		(p ~a:[a_class ["text"]; a_style "top: 77vh; left: 50vw"][txt "Normal"]);
+		(p ~a:[a_class ["text"]; a_style "top: 77vh; left: 55vw"][txt "Hard"]);
 		(easy_button);
 		(normal_button);
 		(hard_button); 
@@ -280,12 +284,12 @@ let pause_menu body : unit =
 	let stats_html = [
 		(p ~a:[a_class ["stats_title"]][]);
 		(p ~a:[a_class ["stats"]][]);
-		(p ~a:[a_class ["text"]; a_style "top: 17vh; left: 83vw; font-size: 3vw"] [txt "14:50"]); (* TODO : here *)
-		(p ~a:[a_class ["text"]; a_style "top: 26vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt "Score: 424242"]);	(* TODO : here *)
-		(single_stat "reproduction" "Healed" "78" "39" "12"); (* TODO : here last val*)
-		(single_stat "max alive" "Max alive" "88" "39" "42"); (* TODO : here last val*)
-		(single_stat "contamination" "Contaminated" "78" "48" "20"); (* TODO : here last val*)
-		(single_stat "evolution" "Mean / Berserk" "88" "48" "4"); (* TODO : here last val*)
+		(p ~a:[a_class ["text"]; a_style "top: 22.5vh; left: 83vw; font-size: 3vw"] [txt "14:50"]); (* TODO : here *)
+		(p ~a:[a_class ["text"]; a_style "top: 29vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt "Score: 424242"]);	(* TODO : here *)
+		(single_stat "reproduction" "Healed" "78" "39" "12"); (* TODO : last val is actual stat *)
+		(single_stat "max alive" "Max alive" "88" "39" "42"); (* TODO : last val is actual stat *)
+		(single_stat "contamination" "Contaminated" "78" "48" "20"); (* TODO : last val is actual stat *)
+		(single_stat "evolution" "Mean / Berserk" "88" "48" "4"); (* TODO : last val is actual stat *)
 		(p ~a:[a_class ["divider"]] []);
 		(my_pie 80. 42. 10. 16.) (* TODO : here *)
 	] in
@@ -301,7 +305,7 @@ let pause_menu body : unit =
 			(Lwt_js_events.click close_node >|= fun _ -> ());
 			external_close;
 		] >>= fun () ->
-    Sounds.play_menu "close";
+		Sounds.play_menu "close";
 		Dom.removeChild body overlay_node;
 		close_modal := None;
 		return_unit
