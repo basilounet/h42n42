@@ -30,6 +30,8 @@ type creet_variables = {
 	deviation:		float accessible;
 	chase:			float accessible;
 	infection:		int   accessible;
+	berserk_growth:	float accessible;
+	mutation_timer:	float accessible;
 	death_timer:	float accessible;
 }
 

@@ -35,7 +35,10 @@ let setup_click target: unit =
 		let creet: Creet.t option = try_grab () in
 		match creet with
 		| None	-> Lwt.return_unit
-		| _		-> creet |> Option.get |> Creet.be_grabbed |> ignore |> Lwt.return
+		| _		-> 
+			match (Option.get creet).state with
+			| Sick | Healthy	-> creet |> Option.get |> Creet.be_grabbed |> ignore |> Lwt.return
+			| _					-> Lwt.return_unit
 	in
 
 	Lwt.async (fun () ->
