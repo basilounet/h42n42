@@ -114,8 +114,8 @@ let avoid_bounds (creet: Creet.t): Creet.t =
 	let height	= Params.simulation.height in
 	let border	= min (width *. Params.creet.border_margin) (height *. Params.creet.border_margin) in
 	let margin	= match creet.state with
-		| Berserk	-> (border +. (2. *. creet.radius))
-		| _			-> (border +. (2. *. creet.radius)) /. 2. 
+		| Berserk	-> (border +. (2. *. creet.radius)) /. 0.85
+		| _			-> (border +. (2. *. creet.radius)) /. 2.
 	in
 
 	
