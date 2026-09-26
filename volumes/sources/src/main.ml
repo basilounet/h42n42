@@ -46,7 +46,7 @@ let () =
 		Event_listeners.setup_click body;
 		Event_listeners.track_cursor body;
 		Menus.pause_menu body;
-		spawn_creets 100;
+		spawn_creets 10;
 		Hashtbl.to_seq_values Params.simulation.troop
 		|> Seq.iter (fun (creet: Creet.t) -> Lwt.async (fun () -> Behaviour.run creet body));
 		Lwt.async (fun () -> Behaviour.simulation_loop ());

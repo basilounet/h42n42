@@ -20,11 +20,9 @@ let is_target_ill (troop: Types.troop) (target: int): bool =
 
 (* Independent Behaviours *)
 let river_contamination (creet: Creet.t): Creet.t =
-	if Background.is_in_river creet.pos.x
-	then
-		Creet.be_contaminated creet
-	else
-		creet
+	match Background.is_in_river creet.pos.x with
+	| true -> Creet.be_contaminated creet
+	| false -> creet
 
 
 let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
@@ -61,8 +59,8 @@ let creet_contamination (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 let berserk_growth (creet: Creet.t): Creet.t =
 	let growth = 1. +. (Params.creet.berserk_growth#get ()) *. Params.simulation.delta_time#get () in
 	creet.radius <- creet.radius *. growth;
-  match creet.radius with 
-  | r when r > Params.creet.initial_radius *. 4. -> Creet.be_dead creet
+	match creet.radius with 
+	| r when r > Params.creet.initial_radius *. 4. -> Creet.be_dead creet
 	| _ -> creet
 
 
@@ -159,7 +157,7 @@ let avoid_creets (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 			if distance < Creet.avoidance2 creet && distance > 0. then begin
 				let avoidance = Creet.avoidance2 creet in
 				let push_dir = creet.pos |> sub other_creet.pos in
-				let strength = ((avoidance) -. distance) /. (avoidance) *. (Params.simulation.delta_time#get ()) *. 10000. in
+				let strength = ((avoidance) -. distance) /. (avoidance) *. (Params.simulation.delta_time#get ()) in
 				delta := push_dir |> stretch strength |> add !delta
 			end
 		end
@@ -187,15 +185,15 @@ let random_deviation (creet: Creet.t): Creet.t =
 		let speed_const		= 0.03 in
 		let (angle_deg, speed_mult) =
 			match random_num with
-			| 0 -> ((  rotation_const), (1.00 +. speed_const))
-			| 1 -> ((             0.0), (1.00 +. speed_const))
+			| 0 -> ((	rotation_const), (1.00 +. speed_const))
+			| 1 -> ((						 0.0), (1.00 +. speed_const))
 			| 2 -> ((-.rotation_const), (1.00 +. speed_const))
-			| 3 -> ((  rotation_const), (1.00               ))
-			| 4 -> ((-.rotation_const), (1.00               ))
-			| 5 -> ((  rotation_const), (1.00 -. speed_const))
-			| 6 -> ((             0.0), (1.00 -. speed_const))
+			| 3 -> ((	rotation_const), (1.00							 ))
+			| 4 -> ((-.rotation_const), (1.00							 ))
+			| 5 -> ((	rotation_const), (1.00 -. speed_const))
+			| 6 -> ((						 0.0), (1.00 -. speed_const))
 			| 7 -> ((-.rotation_const), (1.00 -. speed_const))
-			| _ -> ((             0.0), (1.00               ))
+			| _ -> ((						 0.0), (1.00							 ))
 		in
 		if angle_deg <> 0.0 then
 			creet.direction <- (creet.direction |> rotate angle_deg);
@@ -295,9 +293,6 @@ let berserk_brain (creet: Creet.t): unit =
 
 
 let select_behaviour (creet: Creet.t): unit = 
-	match Menus.is_pause () with
-	| true -> ()
-	| false -> 
 	match creet.grabbed with
 	| true			-> grabbed creet
 	| _				->
@@ -310,15 +305,17 @@ let select_behaviour (creet: Creet.t): unit =
 
 
 let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
-	ignore @@ Creet.update body creet;
-	ignore @@ select_behaviour creet;
 	Lwt.bind (Lwt_condition.wait game_tick) (fun _ ->
-		if creet.state = Types.Dead
-		then begin
-			Hashtbl.remove Params.simulation.troop creet.id;
-			Lwt.return ()
-		end else
-			run creet body
+		match Menus.is_pause () with
+		| true -> run creet body
+		| false -> 
+		ignore @@ Creet.update body creet;
+		ignore @@ select_behaviour creet;
+		match creet.state with 
+		| Dead -> 
+		Hashtbl.remove Params.simulation.troop creet.id;
+		Lwt.return ()
+		| _ -> run creet body
 	)
 
 
@@ -326,15 +323,18 @@ let last_time: float ref	= ref @@ Unix.gettimeofday ()
 
 let rec simulation_loop (): unit Lwt.t =
 	let new_time = Unix.gettimeofday () in
-  let delta_time = new_time -. !last_time in
+	let delta_time = new_time -. !last_time in
 	Params.simulation.delta_time#set (delta_time);
 	last_time := new_time;
-  Statistics.stats.time_elapsed#add (+.) delta_time;
-  Background.update_stats ();
+	Background.update_stats ();
 
-	Grid.clear ();
-	Hashtbl.to_seq_values Params.simulation.troop
-	|> Seq.iter Grid.add;
+	if not @@ Menus.is_pause () then begin
+		Statistics.stats.time_elapsed#add (+.) delta_time;
+
+		Grid.clear ();
+		Hashtbl.to_seq_values Params.simulation.troop
+		|> Seq.iter Grid.add;
+	end;
 	Lwt_condition.broadcast game_tick ();
 	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun _ ->
 		simulation_loop ()

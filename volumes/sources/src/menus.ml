@@ -85,10 +85,10 @@ let my_pie curr_alive contaminated evolution dead = make_pie_chart
 	~icon_radius_ratio:0.6
 	~icon_size:40.
 	[
-		{ value = 8.; color = "#ec7c30"; icon = "/static/images/UI/icons/reproduction.png" };
-		{ value = 5.; color = "#9e8484"; icon = "/static/images/UI/icons/contamination.png" };
-		{ value = 2.; color = "#1da546"; icon = "/static/images/UI/icons/evolution.png" };
-		{ value = 3.; color = "#000000"; icon = "/static/images/UI/icons/dead.png" };
+		{ value = curr_alive; color = "#ec7c30"; icon = "/static/images/UI/icons/reproduction.png" };
+		{ value = contaminated; color = "#9e8484"; icon = "/static/images/UI/icons/contamination.png" };
+		{ value = evolution; color = "#1da546"; icon = "/static/images/UI/icons/evolution.png" };
+		{ value = dead; color = "#000000"; icon = "/static/images/UI/icons/dead.png" };
 	]
 
 type live_stat = {
@@ -284,14 +284,19 @@ let pause_menu body : unit =
 	let stats_html = [
 		(p ~a:[a_class ["stats_title"]][]);
 		(p ~a:[a_class ["stats"]][]);
-		(p ~a:[a_class ["text"]; a_style "top: 22.5vh; left: 83vw; font-size: 3vw"] [txt "14:50"]); (* TODO : here *)
-		(p ~a:[a_class ["text"]; a_style "top: 29vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt "Score: 424242"]);	(* TODO : here *)
-		(single_stat "reproduction" "Healed" "78" "39" "12"); (* TODO : last val is actual stat *)
-		(single_stat "max alive" "Max alive" "88" "39" "42"); (* TODO : last val is actual stat *)
-		(single_stat "contamination" "Contaminated" "78" "48" "20"); (* TODO : last val is actual stat *)
-		(single_stat "evolution" "Mean / Berserk" "88" "48" "4"); (* TODO : last val is actual stat *)
+		(p ~a:[a_class ["text"]; a_style "top: 22.5vh; left: 83vw; font-size: 3vw"] [txt @@ Utils.time_elapsed_format ()]);
+		(p ~a:[a_class ["text"]; a_style "top: 29vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt @@ Printf.sprintf "Score: %d" @@ Statistics.stats.score#get ()]);
+		(single_stat "reproduction" "Healed" "78" "39" @@ string_of_int @@ Statistics.stats.healed#get ());
+		(single_stat "max alive" "Max alive" "88" "39" @@ string_of_int @@ Statistics.stats.max_alive#get ());
+		(single_stat "contamination" "Contaminated" "78" "48" @@ string_of_int @@ Statistics.stats.contaminations#get ());
+		(single_stat "evolution" "Evolutions" "88" "48" @@ string_of_int @@ Statistics.stats.evolutions#get ());
 		(p ~a:[a_class ["divider"]] []);
-		(my_pie 80. 42. 10. 16.) (* TODO : here *)
+		(my_pie 
+    (float_of_int @@ Statistics.stats.healthy#get ())
+    (float_of_int @@ Statistics.stats.sick#get ())
+    (float_of_int @@ (Statistics.stats.mean#get () + Statistics.stats.berserk#get ()))
+    (float_of_int @@ Statistics.stats.dead#get ()))
+    (* curr_alive contaminated evolution dead *)
 	] in
 	let overlay = div ~a:[a_class ["pause_overlay"]] (pause_html @ settings_html @ stats_html) in
 

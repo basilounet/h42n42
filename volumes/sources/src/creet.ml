@@ -91,14 +91,8 @@ let be_dead (creet: t): t =
 
 
 let be_contaminated (creet: t): t =
-	let play_contamination_sound () = 
-		match creet.state with
-		| Healthy -> Sounds.play_sound_effect Sounds.SContamination
-		| _		  -> ()
-	in
 	let random_num = Random.State.int creet.random 10 in
 	creet.time_sick <- Unix.time ();
-	play_contamination_sound ();
 	creet |>
 	match random_num with
 	| 0	-> be_mean

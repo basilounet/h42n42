@@ -25,13 +25,49 @@
 	object-fit: fill
 }
 
+.real_time_wrapper {
+	position: absolute;
+	top: 0; left: 50vw;
+}
+
+.real_time_toggle {
+	position: absolute;
+	opacity: 0;
+	width: 0; height: 0;
+}
+
+.real_time_label {
+	position: absolute;
+	top: -1vh; left: 0;
+	width: 33vw; height: 15vh;
+	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
+	z-index: 2;		  /* above the panel so clicks land on the label */
+	transform: translate(-50%, -50%);
+}
+
 .real_time_bg {
 	position: absolute;
-	top: 92vh; left: 50vw;
+	top: -1vh; left: 0;
 	width: 33vw; height: 15vh;
 	user-select: none;
 	background-image: url('/static/images/UI/backgrounds/real_time.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
+	transition-duration: 0.75s;
+	transition-delay: 0.1s;
 	transform: translate(-50%, -50%);
+}
+
+/* when the checkbox is checked, style the .real_time_bg sibling */
+.real_time_toggle:checked ~ .real_time_bg {
+	top: 8vh;
+	transition-duration: 0.75s;
+	transition-delay: 0.1s;
+}
+
+.real_time_toggle:checked ~ .real_time_label {
+	top: 8vh;
+	transition-duration: 0.75s;
+	transition-delay: 0.1s;
+	
 }

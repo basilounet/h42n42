@@ -45,19 +45,21 @@ let add_creet_state op (state: Types.creet_state): unit =
 let change_creet_state (creet: Types.creet) (new_state: Types.creet_state): unit = 
 	add_creet_state (-) creet.state;
 	match new_state with
-	| Healthy ->				
-		stats.healed#add	(+) 1; 
+	| Healthy ->
+		stats.healed#add	(+) 1;
 		stats.healthy#add	(+) 1
-	| Sick ->						
-		stats.contaminations#add	(+) 1; 
+	| Sick ->
+		stats.contaminations#add (+) 1; 
 		stats.sick#add		(+) 1
-	| Mean ->						
+	| Mean ->
+		(* if creet.state = Healthy then stats.contaminations#add	(+) 1; *)
 		stats.evolutions#add	(+) 1; 
 		stats.mean#add		(+) 1
-	| Berserk ->				
+	| Berserk ->
+		(* if creet.state = Healthy then stats.contaminations#add	(+) 1; *)
 		stats.evolutions#add	(+) 1; 
 		stats.berserk#add	(+) 1
-	| Dead ->						
+	| Dead ->
 		stats.alive#add (-) 1;
 		stats.dead#add	(+) 1
 
