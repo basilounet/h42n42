@@ -14,15 +14,18 @@ let string_of_state = function
 	| Mean		-> "mean"
 	| Berserk	-> "berserk"
 	| Dead		-> "dead"
+	| Fake		-> "fake"
 
 
 let style_string (creet: t) : string = 
-	let diameter = match creet.state with
-		| Mean	-> creet.radius *. 2. *. (1. -. 0.15)
-		| _			-> creet.radius *. 2.
+	let size_factor = match creet.state with
+		| Mean	-> (1. -. 0.15) /. 10.
+		| _		-> (1.) /. 10.
 	in
+	let diameter = creet.radius *. 2. *. size_factor in
 	let screen_x = creet.pos.x /. Params.simulation.width *. 100. in
 	let screen_y = creet.pos.y /. Params.simulation.height *. 100. in
+	(* Printf.printf "diamter: %.1f\n" diameter; *)
 	Printf.sprintf "
 		position: absolute; left: %fvw; top: %fvh;
 		width: %.1fvw; height: %.1fvw; user-select: none;
@@ -98,7 +101,8 @@ let be_dead (creet: t): t =
 
 let be_contaminated (creet: t): t =
 	let random_num = Random.State.int creet.random 10 in
-	creet.time_sick <- Unix.time ();
+	creet.death <- Params.creet.death_timer#get ();
+	creet.mutation <- Params.creet.mutation_timer#get ();
 	creet |>
 	match random_num with
 	| 0	-> be_mean
@@ -114,6 +118,7 @@ let be_healed (creet: t): t =
 
 let be_grabbed (creet: t): t =
 	Params.simulation.grabbed_creet# set (creet.id);
+	creet.held <- Params.creet.hold_timer#get ();
 	creet.grabbed <- true;
 	creet
 
@@ -142,10 +147,12 @@ let create ?(fake = false) (seed: int) (id: int): t =
 		seed =			seed + id;
 		direction	= vec2 (Float_t 1.) (Float_t 0.);
 		speed =			Params.creet.initial_speed#get ();
-		target =		-1;
-		radius =		Params.creet.initial_radius;
-		pos =				vec2 (Float_t 0.) (Float_t 0.);
-		time_sick	= -1.;
+		target		= -1;
+		radius		= Params.creet.initial_radius;
+		pos			= vec2 (Float_t 0.) (Float_t 0.);
+		death		= -1.;
+		mutation	= -1.;
+		held		= -1.;
 		grabbed		= false;
 		html =			None;
 		random		= Random.get_state ();
@@ -187,7 +194,7 @@ let debug_creet (creet: t): unit =
 
 
 let avoidance (creet: t): float =
-	creet.radius *. Params.creet.safe_space#get ()
+	creet.radius *. Params.creet.safe_space
 
 	
 let avoidance2 (creet: t): float =

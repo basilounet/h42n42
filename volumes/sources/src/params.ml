@@ -33,18 +33,19 @@ type creet_variables = {
 	initial_speed:	float	accessible;
 	border_margin:	float;
 	panic:					float accessible;
-	safe_space:			float accessible;
+	safe_space:			float;
 	stress:					float accessible;
 	deviation:			float accessible;
 	chase:					float accessible;
-	infection:			int		accessible;
+	infection:			int   accessible;
 	berserk_growth:	float accessible;
-	mutation_timer:	float accessible;
 	death_timer:		float accessible;
+	mutation_timer:	float accessible;
+	hold_timer:			float accessible;
 }
 
 
-let simulation_width = 10000.
+let simulation_width = 12500.
 let simulation: simulation_variables = {
 	seed					=	new accessible 666; (* TODO : seed *)
 	width					=	simulation_width;
@@ -66,7 +67,7 @@ let creet: creet_variables = {
 	initial_speed		=	new accessible	500.;
 	border_margin		=									0.10;
 	panic						=	new accessible	1.05;
-	safe_space			=	new accessible	50.	;
+	safe_space			=	                50.	;
 	stress					=	new accessible	0.04;
 	deviation				=	new accessible	0.05;
 	chase						=	new accessible	0.05;
@@ -74,4 +75,5 @@ let creet: creet_variables = {
 	berserk_growth	= new accessible	0.01;
 	mutation_timer	= new accessible	10.	; (* Check per x/s *)
 	death_timer			=	new accessible	60.	;
+ 	hold_timer		  =	new accessible	10. ;
 }

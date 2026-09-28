@@ -6,14 +6,13 @@ type cell	= Types.cell
 
 
 let safe_space (): float =
-	let safe_space_v = Params.creet.safe_space#get () in
-	safe_space_v *. safe_space_v *. Params.creet.initial_radius *. Params.creet.initial_radius
+	Params.creet.safe_space *. Params.creet.initial_radius *. 4.
 
 
 let cell_from_size ~(safe_space: float) (size: float): int =
 	safe_space
 	|> Float.div size 
-	|> Float.floor
+	|> Float.ceil
 	|> Float.to_int 
 
 
@@ -26,6 +25,7 @@ let create (): t =
 	let cols		= cell_from_size ~safe_space Params.simulation.width in
 	let rows		= cell_from_size ~safe_space Params.simulation.height in
 	let data		= Array.init (cols * rows) (fun _ -> []) in
+	Printf.printf "Size of grid: %d x %d\n" cols rows;
 	{ cols; rows; data; }
 
 
@@ -52,7 +52,7 @@ let index_of_creet (creet: Creet.t): int =
 
 
 let cell_of_int (index: int): cell = 
-	Array.get grid.data index
+	Array.get grid.data (Utils.clamp index 0 (Array.length grid.data - 1))
 
 
 let cell_of_ints (x: int) (y: int): cell = 
@@ -77,17 +77,16 @@ let add (creet: Creet.t): unit =
 	grid.data.(expected_index) <- creet :: creet_cell;
 	()
 
-let possible_collisions_optimised (creet: Creet.t): Creet.t list =
+
+let iter_neighbours_optimised (f: Creet.t -> unit) (creet: Creet.t): unit =
 	let safe_space = safe_space () in
 	let cell_x = cell_from_size ~safe_space creet.pos.x in
 	let cell_y = cell_from_size ~safe_space creet.pos.y in
 
 	let check_radius = (creet.radius /. Params.creet.initial_radius) |> Float.ceil |> Float.to_int in
-	(* Printf.printf "Checking a radius of %d for %s\n" (check_radius) (Creet.string_of_state creet.state); *)
 	
 	let clamp_x (x: 'a) = Utils.clamp x 0 (grid.cols - 1) in
 	let clamp_y (y: 'a) = Utils.clamp y 0 (grid.rows - 1) in
-	let neighbors = ref [] in
 
 	for iter_y = clamp_y (cell_y - check_radius)
 	to clamp_y (cell_y + check_radius)
@@ -95,17 +94,14 @@ let possible_collisions_optimised (creet: Creet.t): Creet.t list =
 		for iter_x = clamp_x (cell_x - check_radius)
 		to clamp_x (cell_x + check_radius)
 		do
-			(cell_of_ints (cell_x) (cell_y))
+			(cell_of_ints (iter_x) (iter_y))
 			|> List.iter (fun (other: Creet.t) -> 
-				if other.id <> creet.id
-				then
-					neighbors := other :: !neighbors
+				if other.id <> creet.id && not other.grabbed then f other
 			)
-		done
-	done;
-	!neighbors
+		done;
+	done
 
-let possible_collisions (creet: Creet.t): Creet.t list =
+let iter_neighbours (f: Creet.t -> unit) (creet: Creet.t): unit =
   match Params.simulation.is_optimised#get () with
-  | true  -> possible_collisions_optimised creet
-  | false -> Params.simulation.troop |> Hashtbl.to_seq_values |> List.of_seq
+  | true  -> iter_neighbours_optimised f creet
+  | false -> iter_neighbours_optimised f creet (* TODO : naive version*)

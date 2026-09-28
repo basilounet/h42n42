@@ -1,18 +1,18 @@
 open Params
 
 type statistics = {
-	time_elapsed:		float accessible;
-	score:					int accessible;
-	alive:					int accessible;
-	max_alive:			int accessible;
-	dead:						int accessible;
-	healthy:				int accessible;
-	sick:						int accessible;
-	mean:						int accessible;
-	berserk:				int accessible;
-	healed:					int accessible;
-	contaminations:	int accessible;
-	evolutions:			int accessible;
+	time_elapsed:		float	accessible;
+	score:					int		accessible;
+	alive:					int		accessible;
+	max_alive:			int		accessible;
+	dead:						int		accessible;
+	healthy:				int		accessible;
+	sick:						int		accessible;
+	mean:						int		accessible;
+	berserk:				int		accessible;
+	healed:					int		accessible;
+	contaminations:	int		accessible;
+	evolutions:			int		accessible;
 }
 
 let stats: statistics = {
@@ -58,6 +58,7 @@ let add_creet_state op (state: Types.creet_state): unit =
 	| Mean ->						stats.mean#add op 1
 	| Berserk ->				stats.berserk#add op 1
 	| Dead ->						()
+	| Fake ->						()
 
 let change_creet_state (creet: Types.creet) (new_state: Types.creet_state): unit = 
 	add_creet_state (-) creet.state;
@@ -79,6 +80,8 @@ let change_creet_state (creet: Types.creet) (new_state: Types.creet_state): unit
 	| Dead ->
 		stats.alive#add (-) 1;
 		stats.dead#add	(+) 1
+	| Fake ->
+		()
 
 let add_creet () = 
 	stats.alive#add (+) 1;

@@ -10,7 +10,7 @@ let js_to_int num = num |> Js.float_of_number |> int_of_float
 let try_grab (): Creet.t option =
 	let mouse_pos = Params.simulation.mouse_pos# get() in
 	let is_creet_clicked (creet: Creet.t): bool =
-		let size_square = creet.radius *. creet.radius *. 11000. in
+		let size_square =  creet.radius *. creet.radius *. 250. in
 		if creet.pos |--| mouse_pos < size_square
 		then
 			true
@@ -18,9 +18,8 @@ let try_grab (): Creet.t option =
 			false
 	in
 
-	let fake_creet = Creet.create ~fake:true (-1) (-1) in
-	fake_creet.pos <- mouse_pos;
-	(Grid.possible_collisions fake_creet)
+	(Params.simulation.troop |> Hashtbl.to_seq_values |> List.of_seq)
+	|> List.filter (fun (creet: Creet.t) -> match creet.state with | Healthy | Sick -> true | _ -> false )
 	|> List.find_opt is_creet_clicked
 
 
