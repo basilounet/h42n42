@@ -106,12 +106,9 @@ let grabbed (creet: Creet.t): unit =
 	creet.pos <- Params.simulation.mouse_pos#get ();
 	creet.held <- creet.held -. Params.simulation.delta_time#get ();
 	if creet.held < 0.
-	then begin
-		Params.simulation.grabbed_creet#set (0);
-		creet.grabbed <- false;
-		()
-	end else
-		()
+	then
+		ignore @@ Creet.be_released creet;
+	()
 
 
 (* Brain Behaviours *)
