@@ -78,7 +78,7 @@ let add (creet: Creet.t): unit =
 	()
 
 
-let possible_collisions (creet: Creet.t): Creet.t list =
+let iter_neighbours_optimised (f: Creet.t -> unit) (creet: Creet.t): unit =
 	let safe_space = safe_space () in
 	let cell_x = cell_from_size ~safe_space creet.pos.x in
 	let cell_y = cell_from_size ~safe_space creet.pos.y in
@@ -87,7 +87,6 @@ let possible_collisions (creet: Creet.t): Creet.t list =
 	
 	let clamp_x (x: 'a) = Utils.clamp x 0 (grid.cols - 1) in
 	let clamp_y (y: 'a) = Utils.clamp y 0 (grid.rows - 1) in
-	let neighbors = ref [] in
 
 	for iter_y = clamp_y (cell_y - check_radius)
 	to clamp_y (cell_y + check_radius)
@@ -97,11 +96,8 @@ let possible_collisions (creet: Creet.t): Creet.t list =
 		do
 			(cell_of_ints (iter_x) (iter_y))
 			|> List.iter (fun (other: Creet.t) -> 
-				if other.id <> creet.id
-				then
-					neighbors := other :: !neighbors
+				if other.id <> creet.id && not other.grabbed then f other
 			)
 		done;
-	done;
-	!neighbors
+	done
 
