@@ -41,6 +41,7 @@ let add_creet_state op (state: Types.creet_state): unit =
 	| Mean ->						stats.mean#add op 1
 	| Berserk ->				stats.berserk#add op 1
 	| Dead ->						()
+	| Fake ->						()
 
 let change_creet_state (creet: Types.creet) (new_state: Types.creet_state): unit = 
 	add_creet_state (-) creet.state;
@@ -62,6 +63,8 @@ let change_creet_state (creet: Types.creet) (new_state: Types.creet_state): unit
 	| Dead ->
 		stats.alive#add (-) 1;
 		stats.dead#add	(+) 1
+	| Fake ->
+		()
 
 let add_creet () = 
 	stats.alive#add (+) 1;
@@ -81,5 +84,5 @@ let calculate_score () =
     /.
     (float_of_int @@ (stats.dead#get ()) |> max 1.) 
     |> ( *. ) 0.5 in
-  Printf.printf "ratio: %f\n" efficiency;
+  (* Printf.printf "ratio: %f\n" efficiency; *)
   stats.score#add (+) @@ int_of_float @@ (float_of_int @@ stats.alive#get ()) *. efficiency

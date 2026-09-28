@@ -7,7 +7,7 @@ type vec2 = {
 type vec_aux_t = Float_t of float | Int of int | Float_Tuple of (float * float) | Int_Tuple of (int * int) | Vec_None
 
 
-type creet_state = Healthy | Sick | Mean | Berserk | Dead
+type creet_state = Healthy | Sick | Mean | Berserk | Dead | Fake
 type creet = {
 	id:					int;
 	mutable state:		creet_state;
@@ -16,7 +16,9 @@ type creet = {
 	mutable direction:	vec2;
 	mutable speed:		float;
 	mutable target:		int;
-	mutable time_sick:	float;
+	mutable death:		float;
+	mutable mutation:	float;
+	mutable held:		float;
 	mutable grabbed:	bool;
 	seed:				int;
 	random:				Random.State.t;

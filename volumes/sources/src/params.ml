@@ -28,43 +28,45 @@ type creet_variables = {
 	initial_radius:	float;
 	initial_speed:	float;
 	border_margin:	float;
-	panic:					float accessible;
-	safe_space:			float accessible;
-	stress:					float accessible;
-	deviation:			float accessible;
-	chase:					float accessible;
-	infection:			int		accessible;
+	panic:			float accessible;
+	safe_space:		float;
+	stress:			float accessible;
+	deviation:		float accessible;
+	chase:			float accessible;
+	infection:		int   accessible;
 	berserk_growth:	float accessible;
+	death_timer:	float accessible;
 	mutation_timer:	float accessible;
-	death_timer:		float accessible;
+	hold_timer:		float accessible;
 }
 
 
-let simulation_width = 10000.
+let simulation_width = 12500.
 let simulation: simulation_variables = {
-	width			= 		simulation_width;
-	height			= 	simulation_width /. 2.;
+	width			= simulation_width;
+	height			= simulation_width /. 2.;
 	hospital_end	= simulation_width *. 0.1;
 	river_start		= simulation_width *. 0.9;
 	delta_time		= new accessible 0.;
-	mouse_pos		= 	new accessible @@ Vector.vec2 (Types.Vec_None) (Types.Vec_None);
+	mouse_pos		= new accessible @@ Vector.vec2 (Types.Vec_None) (Types.Vec_None);
 	grabbed_creet	= new accessible (-1);
-	troop			= 		Hashtbl.create 200;
+	troop			= Hashtbl.create 200;
 }
 
 
 let creet: creet_variables = {
-	initial_radius	=									1.25;
-	initial_speed	=										1000.;
-	border_margin	=										0.10;
-	panic			= 			new accessible	1.05;
-	safe_space		= 	new accessible	50.	;
-	stress			= 		new accessible	0.04;
-	deviation		= 		new accessible	0.05;
-	chase			= 			new accessible	0.05;
-	infection		= 		new accessible	2	 ; (* Is compared against a Random.int 100 *)
-	berserk_growth	= new accessible	0.01;
-	mutation_timer	= new accessible	10.	; (* Check per x/s *)
-	death_timer		= 	new accessible	60.	;
+	initial_radius	=				   12.5 ;
+	initial_speed	=				  250.  ;
+	border_margin	=					0.10;
+	panic			= 	new accessible	1.05;
+	safe_space		= 				   30.	;
+	stress			= 	new accessible	0.04;
+	deviation		= 	new accessible	0.05;
+	chase			= 	new accessible	0.05;
+	infection		= 	new accessible	2	; (* Is compared against a Random.int 100 *)
+	berserk_growth	=	new accessible	0.01;
+	death_timer		=	new accessible	60.	;
+	mutation_timer	=	new accessible	10.	; (* Check per x/s *)
+	hold_timer		=	new accessible	10. ;
 }
 

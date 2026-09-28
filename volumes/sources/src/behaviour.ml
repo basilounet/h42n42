@@ -85,23 +85,33 @@ let mean_new_target (troop: Types.troop) (creet: Creet.t): Creet.t =
 
 
 let ask_to_die (creet: Creet.t): Creet.t =
-	if Unix.time () -. creet.time_sick > Params.creet.death_timer#get ()
+	creet.death <- creet.death -. Params.simulation.delta_time#get ();
+	if creet.death > 0.
 	then
-		Creet.be_dead creet
-	else
 		creet
+	else
+		Creet.be_dead creet
 
 
 let ask_to_mutate (creet: Creet.t): Creet.t =
-	if Unix.time () -. creet.time_sick > Params.creet.mutation_timer#get ()
+	creet.mutation <- creet.mutation -. Params.simulation.delta_time#get ();
+	if creet.mutation > 0.
 	then
-		Creet.be_contaminated creet
-	else
 		creet
+	else
+		Creet.be_contaminated creet
 
 
 let grabbed (creet: Creet.t): unit =
-	creet.pos <- Params.simulation.mouse_pos#get ()
+	creet.pos <- Params.simulation.mouse_pos#get ();
+	creet.held <- creet.held -. Params.simulation.delta_time#get ();
+	if creet.held < 0.
+	then begin
+		Params.simulation.grabbed_creet#set (0);
+		creet.grabbed <- false;
+		()
+	end else
+		()
 
 
 (* Brain Behaviours *)
@@ -157,7 +167,7 @@ let avoid_creets (neighbors: Creet.t list) (creet: Creet.t): Creet.t =
 			if distance < Creet.avoidance2 creet && distance > 0. then begin
 				let avoidance = Creet.avoidance2 creet in
 				let push_dir = creet.pos |> sub other_creet.pos in
-				let strength = ((avoidance) -. distance) /. (avoidance) *. (Params.simulation.delta_time#get ()) in
+				let strength = ((avoidance) -. distance) /. (avoidance) in
 				delta := push_dir |> stretch strength |> add !delta
 			end
 		end
@@ -192,8 +202,8 @@ let random_deviation (creet: Creet.t): Creet.t =
 			| 4 -> ((-.rotation_const), (1.00							 ))
 			| 5 -> ((	rotation_const), (1.00 -. speed_const))
 			| 6 -> ((						 0.0), (1.00 -. speed_const))
-			| 7 -> ((-.rotation_const), (1.00 -. speed_const))
-			| _ -> ((						 0.0), (1.00							 ))
+			| 7 -> ((	-.rotation_const), (1.00 -. speed_const))
+			| _ -> ((				 0.0), (1.00					))
 		in
 		if angle_deg <> 0.0 then
 			creet.direction <- (creet.direction |> rotate angle_deg);
@@ -302,6 +312,7 @@ let select_behaviour (creet: Creet.t): unit =
 	| Types.Mean	-> mean_brain creet
 	| Types.Berserk	-> berserk_brain creet
 	| Types.Dead	-> ()
+	| Types.Fake	-> ()
 
 
 let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
@@ -340,3 +351,4 @@ let rec simulation_loop (): unit Lwt.t =
 	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun _ ->
 		simulation_loop ()
 	)
+

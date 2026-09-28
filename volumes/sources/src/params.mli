@@ -25,14 +25,15 @@ type creet_variables = {
 	initial_speed:	float;
 	border_margin:	float;
 	panic:			float accessible;
-	safe_space:		float accessible;
+	safe_space:		float;
 	stress:			float accessible;
 	deviation:		float accessible;
 	chase:			float accessible;
 	infection:		int   accessible;
 	berserk_growth:	float accessible;
-	mutation_timer:	float accessible;
 	death_timer:	float accessible;
+	mutation_timer:	float accessible;
+	hold_timer:		float accessible;
 }
 
 
