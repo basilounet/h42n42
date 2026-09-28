@@ -119,7 +119,8 @@ let be_released (creet: t): t =
 	| Types.Sick	-> begin
 		match Background.is_in_hospital creet.pos.x with
 		| true -> 
-		Sounds.play_sound_effect Sounds.SHealing; 
+		Sounds.play_sound_effect Sounds.SHealing;
+    Statistics.stats.score#add (+) 250;
 		be_healed creet
 		| false ->creet
 	end

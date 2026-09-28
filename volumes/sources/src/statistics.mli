@@ -20,3 +20,4 @@ val stats: statistics
 val update_max_alive:	unit -> unit
 val change_creet_state:	Types.creet -> Types.creet_state -> unit
 val add_creet: unit -> unit
+val calculate_score: unit -> unit

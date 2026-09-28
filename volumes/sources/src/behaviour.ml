@@ -330,6 +330,7 @@ let rec simulation_loop (): unit Lwt.t =
 
 	if not @@ Menus.is_pause () then begin
 		Statistics.stats.time_elapsed#add (+.) delta_time;
+    Statistics.calculate_score ();
 
 		Grid.clear ();
 		Hashtbl.to_seq_values Params.simulation.troop
