@@ -71,15 +71,15 @@ let add_creet () =
 let time_since_last_score = ref 0.
 
 let calculate_score () =
-  time_since_last_score := !time_since_last_score +. Params.simulation.delta_time#get ();
-  match time_since_last_score with
-  | t when !t < 1. -> ()
-  | t -> (* Triggers for every second *)
-  t := !t -. 1.;
-  let efficiency = 
-    (float_of_int @@ stats.healed#get () |> max 1.)
-    /.
-    (float_of_int @@ (stats.dead#get ()) |> max 1.) 
-    |> ( *. ) 0.5 in
-  Printf.printf "ratio: %f\n" efficiency;
-  stats.score#add (+) @@ int_of_float @@ (float_of_int @@ stats.alive#get ()) *. efficiency
+	time_since_last_score := !time_since_last_score +. Params.simulation.delta_time#get ();
+	match time_since_last_score with
+	| t when !t < 1. -> ()
+	| t -> (* Triggers for every second *)
+	t := !t -. 1.;
+	let efficiency = 
+		(float_of_int @@ stats.healed#get () |> max 1.)
+		/.
+		(float_of_int @@ (stats.dead#get ()) |> max 1.) 
+		|> ( *. ) 0.5 in
+	(* Printf.printf "ratio: %f\n" efficiency; *)
+	stats.score#add (+) @@ int_of_float @@ (float_of_int @@ stats.healthy#get ()) *. efficiency

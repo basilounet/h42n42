@@ -9,14 +9,18 @@ class ['a] accessible: 'a	->
 
 
 type simulation_variables = {
-	width:			float;
-	height:			float;
-	hospital_end:	float;
-	river_start:	float;
-	delta_time:		float accessible;
-	mouse_pos:		Types.vec2 accessible;
-	grabbed_creet:	int accessible;
-	troop:			Types.troop;
+	seed:						int					accessible;
+	width:					float;
+	height:					float;
+	hospital_end:		float;
+	river_start:		float;
+	delta_time:			float				accessible;
+	mouse_pos:			Types.vec2	accessible;
+	grabbed_creet:	int					accessible;
+	is_optimized:		bool				accessible;
+	initial_pop:		int					accessible;
+	birth_interval:	float				accessible;
+	troop:					Types.troop;
 }
 
 
@@ -24,19 +28,19 @@ type creet_variables = {
 	initial_radius:	float;
 	initial_speed:	float;
 	border_margin:	float;
-	panic:			float accessible;
-	safe_space:		float accessible;
-	stress:			float accessible;
-	deviation:		float accessible;
-	chase:			float accessible;
-	infection:		int   accessible;
+	panic:					float accessible;
+	safe_space:			float accessible;
+	stress:					float accessible;
+	deviation:			float accessible;
+	chase:					float accessible;
+	infection:			int   accessible;
 	berserk_growth:	float accessible;
 	mutation_timer:	float accessible;
-	death_timer:	float accessible;
+	death_timer:		float accessible;
 }
 
 
 val simulation:	simulation_variables
-val creet:		creet_variables
+val creet:			creet_variables
 
 

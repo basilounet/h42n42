@@ -14,7 +14,7 @@ let create_id =
 	fun () ->
 		let id = !n in
 		if id = -1 then
-		failwith "Counter reached max value.";
+		  n := 0;
 		incr n;
 		id
 

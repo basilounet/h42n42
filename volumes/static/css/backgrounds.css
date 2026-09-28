@@ -41,7 +41,7 @@
 	top: -1vh; left: 0;
 	width: 33vw; height: 15vh;
 	cursor: url('/static/images/UI/cursors/Gauntlet_Magic.png'), auto;
-	z-index: 2;		  /* above the panel so clicks land on the label */
+	z-index: 1;		  /* above the panel so clicks land on the label */
 	transform: translate(-50%, -50%);
 }
 

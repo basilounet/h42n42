@@ -309,8 +309,8 @@ let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 		match Menus.is_pause () with
 		| true -> run creet body
 		| false -> 
-		ignore @@ Creet.update body creet;
-		ignore @@ select_behaviour creet;
+		Creet.update body creet	|> ignore;
+		select_behaviour	creet	|> ignore;
 		match creet.state with 
 		| Dead -> 
 		Hashtbl.remove Params.simulation.troop creet.id;
@@ -318,6 +318,33 @@ let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 		| _ -> run creet body
 	)
 
+let time_since_last_birth = ref 0.
+
+let rec spawn_creets = function
+  | i when i <= 0 -> ()
+  | i -> 
+	let body = Dom_html.document##.body in
+	let new_id = Utils.create_id () in
+	let new_creet = Creet.create (Params.simulation.seed#get ()) new_id in
+	new_creet.pos <- Creet.generate_position new_creet;
+	new_creet.direction <- Creet.generate_dir new_creet;
+	Hashtbl.add Params.simulation.troop new_id new_creet;
+	Lwt.async (fun () -> run new_creet body);
+	spawn_creets (i - 1) 
+
+
+let give_birth () =
+	match Statistics.stats.healthy#get () with
+	| 0 -> ()
+	| _ ->
+  time_since_last_birth := !time_since_last_birth +. Params.simulation.delta_time#get ();
+  match time_since_last_birth with
+  | t when !t < (Params.simulation.birth_interval#get ()) -> ()
+  | t -> (* Triggers every birth_interval seconds *)
+  t := !t -. (Params.simulation.birth_interval#get ());
+	Sounds.play_sound_effect Sounds.SReproduction;
+	spawn_creets 1;
+  ()
 
 let last_time: float ref	= ref @@ Unix.gettimeofday ()
 
@@ -331,12 +358,18 @@ let rec simulation_loop (): unit Lwt.t =
 	if not @@ Menus.is_pause () then begin
 		Statistics.stats.time_elapsed#add (+.) delta_time;
     Statistics.calculate_score ();
+		give_birth ();
 
 		Grid.clear ();
 		Hashtbl.to_seq_values Params.simulation.troop
 		|> Seq.iter Grid.add;
+		Lwt_condition.broadcast game_tick ();
 	end;
-	Lwt_condition.broadcast game_tick ();
 	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun _ ->
 		simulation_loop ()
 	)
+
+let start_game body =
+	spawn_creets @@ Params.simulation.initial_pop#get ();
+	Lwt.async (fun () -> simulation_loop ());
+	()

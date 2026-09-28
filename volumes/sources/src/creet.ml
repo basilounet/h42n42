@@ -26,7 +26,7 @@ let style_string (creet: t) : string =
 	Printf.sprintf "
 		position: absolute; left: %fvw; top: %fvh;
 		width: %.1fvw; height: %.1fvw; user-select: none;
-		transform: translate(-50%%, -50%%) rotate(%.1fdeg)
+		transform: translate(-50%%, -50%%) rotate(%.1fdeg); z-index: 2;
 	"	screen_x screen_y diameter diameter (to_angle creet.direction +. 90.)
 
 
@@ -60,6 +60,9 @@ let update (body: #Dom.node Js.t) (creet : t) : t =
 
 
 let be_mean (creet: t): t =
+	match creet.state with
+	| Berserk -> creet
+	| _ ->
 	Sounds.play_sound_effect Sounds.SEvolution;
 	Statistics.change_creet_state creet Mean;
 	creet.state		<- Mean;
@@ -68,6 +71,9 @@ let be_mean (creet: t): t =
 
 
 let be_berserk (creet: t): t =
+	match creet.state with
+	| Berserk -> creet
+	| _ ->
 	Sounds.play_sound_effect Sounds.SEvolution;
 	Statistics.change_creet_state creet Berserk;
 	creet.state <- Berserk;
@@ -75,6 +81,9 @@ let be_berserk (creet: t): t =
 
 
 let be_sick (creet: t): t =
+	match creet.state with
+	| Sick -> creet
+	| _ ->
 	Sounds.play_sound_effect Sounds.SContamination;
 	Statistics.change_creet_state creet Sick;
 	creet.state <- Sick;
@@ -145,6 +154,28 @@ let create ?(fake = false) (seed: int) (id: int): t =
 	}
 
 
+let generate_position (creet: t): vec2 =
+	let prev_rand	= Random.get_state () in
+	Random.set_state creet.random;
+	let minx		= Params.simulation.width  *. Params.creet.border_margin in
+	let miny		= Params.simulation.height *. Params.creet.border_margin in
+	let randx		= minx +. Random.float (Params.simulation.width -. minx) in
+	let randy		= miny +. Random.float (Params.simulation.height -. miny) in
+	let pos			= vec2 (Float_t randx) (Float_t randy) in
+	Random.set_state prev_rand;
+	pos
+
+
+let generate_dir (creet: t): vec2 =
+	let prev_rand	= Random.get_state () in
+	Random.set_state creet.random;
+	let randx	= 0.5 -. (Random.float 1.) in
+	let randy	= 0.5 -. (Random.float 1.) in
+	let pos		= vec2 (Float_t randx) (Float_t randy) in
+	Random.set_state prev_rand;
+	pos
+
+
 let debug_creet (creet: t): unit =
 	Printf.printf "creet %d (%s) pos:(%.2f; %.2f) radius: %.2f dir: (%.2f; %.2f) speed: %.2f\n"
 		(creet.id)
@@ -172,5 +203,3 @@ let advance (creet: t): t =
 	in
 	creet.pos <- creet.direction |> stretch (creet_speed *. Params.simulation.delta_time#get ()) |> add creet.pos;
 	creet
-
-	

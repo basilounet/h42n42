@@ -118,6 +118,7 @@ let checkbox_input (id : string) (checked : bool) =
 	let base_attrs = [a_input_type `Checkbox; a_id id; a_class ["custom_checkbox"]] in
 	input () ~a:(if checked then a_checked () :: base_attrs else base_attrs)
 
+let optimized_input =					 	checkbox_input "optimzed" true
 let sound_contamination_input =	checkbox_input "sound_contamination" true
 let sound_evolution_input =			checkbox_input "sound_evolution" true
 let sound_heal_input = 					checkbox_input "sound_heal" true
@@ -146,6 +147,7 @@ div ~a:[a_class ["single_stat"]; a_style ("left:"^x^"%;top:"^y^"%"); a_id name] 
 
 let sound_effects_node =			Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_effects_input
 let music_node =							Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input music_input
+let optimized_node =						Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input optimized_input
 let sound_contamination_node =Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_contamination_input
 let sound_evolution_node =		Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_evolution_input
 let sound_heal_node =					Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_input sound_heal_input
@@ -203,6 +205,10 @@ let setup_checkbox_listener (name : string) (sound_type: Sounds.sound_effect_typ
 let sound_check_fun (sound_type: Sounds.sound_effect_type) = 
 	Sounds.toggle_sound sound_type
 
+let toggle_optimized (sound_type: Sounds.sound_effect_type) =
+	(* Printf.printf "is_optimized: %b\n" @@ not @@ Params.simulation.is_optimized#get (); *)
+	Params.simulation.is_optimized#set (not @@ Params.simulation.is_optimized#get ())
+
 let setup_difficulty_buttons node_to_listen fn = async (fun () ->
 	Lwt_js_events.clicks node_to_listen (fun ev _handler ->
 	Sounds.play_click @@ string_of_int (Random.int 4);
@@ -210,7 +216,7 @@ let setup_difficulty_buttons node_to_listen fn = async (fun () ->
 	(* Printf.printf "new_val: %s\n" @@ Js.to_string @@ new_val reproduction_node; *)
 	set_slider_value reproduction_node	 (new_val reproduction_node)		unused_fun;
 	set_slider_value initial_creets_node (new_val initial_creets_node)	unused_fun;
-	set_slider_value contamination_node	 (new_val contamination_node)	 unused_fun;
+	set_slider_value contamination_node	 (new_val contamination_node)		unused_fun;
 	set_slider_value evolution_node			 (new_val evolution_node)				unused_fun;
 	set_slider_value speed_node					 (new_val speed_node)						unused_fun;
 	Lwt.return_unit
@@ -238,6 +244,7 @@ let one_time_setup_listeners () : unit =
 	setup_slider_listener "evolution" 			evolution_node			unused_fun;
 	setup_slider_listener "speed" 					speed_node					unused_fun;
 
+	setup_checkbox_listener "is_optimized"				Sounds.SDeath					optimized_node						toggle_optimized;
 	setup_checkbox_listener "sound_contamination" Sounds.SContamination	sound_contamination_node	sound_check_fun;
 	setup_checkbox_listener "sound_evolution"			Sounds.SEvolution			sound_evolution_node			sound_check_fun;
 	setup_checkbox_listener "sound_heal"					Sounds.SHealing				sound_heal_node						sound_check_fun;
@@ -268,18 +275,19 @@ let pause_menu body : unit =
 	let settings_html = [
 		 (p ~a:[a_class ["settings_title"]][]);
 		 (p ~a:[a_class ["settings"]][]);
-		 (create_slider		"music"						"20" "28"		music_input);
-		 (create_slider		"sound effects"		"20" "35.5"	sound_effects_input);
-		 (create_checkbox "contamination"		"8" "40"		sound_contamination_input);
-		 (create_checkbox "evolution"				"12" "40"		sound_evolution_input);
-		 (create_checkbox "reproduction"		"16" "40"		sound_heal_input);
-		 (create_checkbox "dead"						"20" "40"		sound_dead_input);
-		 (create_checkbox "max alive"				"24" "40"		sound_reproduction_input);
-		 (create_slider 	"reproduction" 		"20" "53"		reproduction_input);
-		 (create_slider 	"initial creets"	"20" "61"		initial_creets_input);
-		 (create_slider 	"contamination"		"20" "70"		contamination_input);
-		 (create_slider 	"evolution"				"20" "78"		evolution_input);
-		 (create_slider 	"speed"						"20" "86"		speed_input);
+		 (create_slider		"music"						"20"	"28"		music_input);
+		 (create_slider		"sound effects"		"20"	"35.5"	sound_effects_input);
+		 (create_checkbox "optimized"				"5.7" "25"		optimized_input);
+		 (create_checkbox "contamination"		"8"		"40"		sound_contamination_input);
+		 (create_checkbox "evolution"				"12"	"40"		sound_evolution_input);
+		 (create_checkbox "reproduction"		"16"	"40"		sound_heal_input);
+		 (create_checkbox "dead"						"20"	"40"		sound_dead_input);
+		 (create_checkbox "max alive"				"24"	"40"		sound_reproduction_input);
+		 (create_slider 	"reproduction" 		"20"	"53"		reproduction_input);
+		 (create_slider 	"initial creets"	"20"	"61"		initial_creets_input);
+		 (create_slider 	"contamination"		"20"	"70"		contamination_input);
+		 (create_slider 	"evolution"				"20"	"78"		evolution_input);
+		 (create_slider 	"speed"						"20"	"86"		speed_input);
 	] in
 	let stats_html = [
 		(p ~a:[a_class ["stats_title"]][]);
@@ -292,11 +300,11 @@ let pause_menu body : unit =
 		(single_stat "evolution" "Evolutions" "88" "48" @@ string_of_int @@ Statistics.stats.evolutions#get ());
 		(p ~a:[a_class ["divider"]] []);
 		(my_pie 
-    (float_of_int @@ Statistics.stats.healthy#get ())
-    (float_of_int @@ Statistics.stats.sick#get ())
-    (float_of_int @@ (Statistics.stats.mean#get () + Statistics.stats.berserk#get ()))
-    (float_of_int @@ Statistics.stats.dead#get ()))
-    (* curr_alive contaminated evolution dead *)
+		(float_of_int @@ Statistics.stats.healthy#get ())
+		(float_of_int @@ Statistics.stats.sick#get ())
+		(float_of_int @@ (Statistics.stats.mean#get () + Statistics.stats.berserk#get ()))
+		(float_of_int @@ Statistics.stats.dead#get ()))
+		(* curr_alive contaminated evolution dead *)
 	] in
 	let overlay = div ~a:[a_class ["pause_overlay"]] (pause_html @ settings_html @ stats_html) in
 
