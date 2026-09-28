@@ -318,11 +318,9 @@ let rec run (creet: Creet.t) (body: #Dom.node Js.t): unit Lwt.t =
 		| _ -> run creet body
 	)
 
-let time_since_last_birth = ref 0.
-
 let rec spawn_creets = function
-  | i when i <= 0 -> ()
-  | i -> 
+	| i when i <= 0 -> ()
+	| i -> 
 	let body = Dom_html.document##.body in
 	let new_id = Utils.create_id () in
 	let new_creet = Creet.create (Params.simulation.seed#get ()) new_id in
@@ -333,43 +331,63 @@ let rec spawn_creets = function
 	spawn_creets (i - 1) 
 
 
+let time_since_last_birth = ref 0.
+
 let give_birth () =
 	match Statistics.stats.healthy#get () with
 	| 0 -> ()
 	| _ ->
-  time_since_last_birth := !time_since_last_birth +. Params.simulation.delta_time#get ();
-  match time_since_last_birth with
-  | t when !t < (Params.simulation.birth_interval#get ()) -> ()
-  | t -> (* Triggers every birth_interval seconds *)
-  t := !t -. (Params.simulation.birth_interval#get ());
+	time_since_last_birth := !time_since_last_birth +. Params.simulation.delta_time#get ();
+	match time_since_last_birth with
+	| t when !t < (Params.simulation.birth_interval#get ()) -> ()
+	| t -> (* Triggers every birth_interval seconds *)
+	t := !t -. (Params.simulation.birth_interval#get ());
 	Sounds.play_sound_effect Sounds.SReproduction;
 	spawn_creets 1;
-  ()
+	()
 
-let last_time: float ref	= ref @@ Unix.gettimeofday ()
+let last_time : float ref = ref 0.
+let running : bool ref = ref false
 
-let rec simulation_loop (): unit Lwt.t =
+let cleanup () : unit =
+	(* let body = Dom_html.document##.body in *)
+	last_time := Unix.gettimeofday ();
+	Grid.clear ();
+	Hashtbl.to_seq_values Params.simulation.troop |> Seq.iter (fun creet ->
+			Creet.be_dead creet |> ignore
+		);
+	Hashtbl.clear Params.simulation.troop;
+	Statistics.reset ();
+	(* remove creet DOM nodes, reset stats, stop timers, etc. *)
+	()
+
+let rec simulation_loop () : unit Lwt.t =
+	match !running with
+	| false -> cleanup (); Lwt.return_unit
+	| true ->
 	let new_time = Unix.gettimeofday () in
 	let delta_time = new_time -. !last_time in
-	Params.simulation.delta_time#set (delta_time);
+	Params.simulation.delta_time#set delta_time;
 	last_time := new_time;
 	Background.update_stats ();
 
 	if not @@ Menus.is_pause () then begin
 		Statistics.stats.time_elapsed#add (+.) delta_time;
-    Statistics.calculate_score ();
+		Statistics.calculate_score ();
 		give_birth ();
-
 		Grid.clear ();
-		Hashtbl.to_seq_values Params.simulation.troop
-		|> Seq.iter Grid.add;
-		Lwt_condition.broadcast game_tick ();
+		Hashtbl.to_seq_values Params.simulation.troop |> Seq.iter Grid.add;
+		Lwt_condition.broadcast game_tick ()
 	end;
-	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun _ ->
-		simulation_loop ()
-	)
+	Lwt.bind (Lwt_js.sleep (1.0 /. 120.0)) (fun () -> simulation_loop ())
+
+let stop_game () : unit = running := false
 
 let start_game body =
+	match !running with
+	| true	-> ()
+	| false ->
+	running := true;
+	cleanup ();
 	spawn_creets @@ Params.simulation.initial_pop#get ();
-	Lwt.async (fun () -> simulation_loop ());
-	()
+	Lwt.async simulation_loop

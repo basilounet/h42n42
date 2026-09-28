@@ -77,7 +77,7 @@ let add (creet: Creet.t): unit =
 	grid.data.(expected_index) <- creet :: creet_cell;
 	()
 
-let possible_collisions_optimized (creet: Creet.t): Creet.t list =
+let possible_collisions_optimised (creet: Creet.t): Creet.t list =
 	let safe_space = safe_space () in
 	let cell_x = cell_from_size ~safe_space creet.pos.x in
 	let cell_y = cell_from_size ~safe_space creet.pos.y in
@@ -106,6 +106,6 @@ let possible_collisions_optimized (creet: Creet.t): Creet.t list =
 	!neighbors
 
 let possible_collisions (creet: Creet.t): Creet.t list =
-  match Params.simulation.is_optimized#get () with
-  | true  -> possible_collisions_optimized creet
+  match Params.simulation.is_optimised#get () with
+  | true  -> possible_collisions_optimised creet
   | false -> Params.simulation.troop |> Hashtbl.to_seq_values |> List.of_seq

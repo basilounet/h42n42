@@ -1,3 +1,5 @@
+open Js_of_ocaml
+open Js_of_ocaml_tyxml.Tyxml_js.Html
 
 
 type vec2 = {
@@ -9,17 +11,18 @@ type vec_aux_t = Float_t of float | Int of int | Float_Tuple of (float * float) 
 
 type creet_state = Healthy | Sick | Mean | Berserk | Dead
 type creet = {
-	id:					int;
-	mutable state:		creet_state;
-	mutable radius:		float;
-	mutable pos:		vec2;
+	id:									int;
+	mutable state:			creet_state;
+	mutable radius:			float;
+	mutable pos:				vec2;
 	mutable direction:	vec2;
-	mutable speed:		float;
-	mutable target:		int;
+	mutable speed:			float;
+	mutable target:			int;
 	mutable time_sick:	float;
-	mutable grabbed:	bool;
-	seed:				int;
-	random:				Random.State.t;
+	mutable grabbed:		bool;
+	mutable html:				(Dom_html.imageElement Js.t) option;
+	seed:								int;
+	random:							Random.State.t;
 }
 
 

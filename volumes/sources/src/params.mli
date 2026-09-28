@@ -17,7 +17,7 @@ type simulation_variables = {
 	delta_time:			float				accessible;
 	mouse_pos:			Types.vec2	accessible;
 	grabbed_creet:	int					accessible;
-	is_optimized:		bool				accessible;
+	is_optimised:		bool				accessible;
 	initial_pop:		int					accessible;
 	birth_interval:	float				accessible;
 	troop:					Types.troop;
@@ -26,7 +26,7 @@ type simulation_variables = {
 
 type creet_variables = {
 	initial_radius:	float;
-	initial_speed:	float;
+	initial_speed:	float	accessible;
 	border_margin:	float;
 	panic:					float accessible;
 	safe_space:			float accessible;

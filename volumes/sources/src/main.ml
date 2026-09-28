@@ -13,6 +13,7 @@ let () =
 		Event_listeners.setup_click body;
 		Event_listeners.track_cursor body;
 		Menus.pause_menu body;
-    Behaviour.start_game body;
+    Menus.on_retry := (fun () -> Behaviour.stop_game ());
+    Menus.on_start := (fun () -> Behaviour.start_game body);
 		Js._true
 	)

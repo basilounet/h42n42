@@ -72,8 +72,8 @@ let track_cursor target: unit =
 let setup_keypresses target: unit =
 	Lwt.async (fun () -> Lwt_js_events.keypresses target (fun ev _handler ->
 		match ev##.keyCode with
-    (* | 99 -> Params.simulation.is_optimized#set (not @@ Params.simulation.is_optimized#get ()); 
-    Printf.printf "is_optimized: %b\n" @@ Params.simulation.is_optimized#get (); Lwt.return_unit *)
+    (* | 99 -> Printf.printf "speed: %f\n" @@ Params.creet.initial_speed#get ()
+      ; Lwt.return_unit *)
 		(* Enter or Space *)
 		| 13 | 32 -> begin match !Menus.close_modal with
 			| Some close_modal -> close_modal ()

@@ -6,4 +6,6 @@ val close_modal : (unit -> unit) option ref
 val is_pause: unit -> bool
 
 
+val on_retry : (unit -> unit) ref
+val on_start : (unit -> unit) ref
 val pause_menu: #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t -> unit

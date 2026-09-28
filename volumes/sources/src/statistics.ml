@@ -30,6 +30,23 @@ let stats: statistics = {
 	evolutions =		new accessible 0;
 }
 
+
+let reset () = 
+	stats.time_elapsed#set		0.;
+	stats.score#set						0;
+	stats.alive#set						0;
+	stats.max_alive#set				0;
+	stats.dead#set						0;
+	stats.healthy#set					0;
+	stats.sick#set						0;
+	stats.mean#set						0;
+	stats.berserk#set					0;
+	stats.healed#set					0;
+	stats.contaminations#set	0;
+	stats.evolutions#set			0;
+	()
+
+
 let update_max_alive () =
 	stats.max_alive#set (max (stats.alive#get ()) (stats.max_alive#get ()));
 	()

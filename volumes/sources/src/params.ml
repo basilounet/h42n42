@@ -21,7 +21,7 @@ type simulation_variables = {
 	delta_time:			float 			accessible;
 	mouse_pos:			Types.vec2	accessible;
 	grabbed_creet:	int 				accessible;
-	is_optimized:		bool				accessible;
+	is_optimised:		bool				accessible;
 	initial_pop:		int					accessible;
 	birth_interval:	float				accessible;
 	troop:					Types.troop;
@@ -30,7 +30,7 @@ type simulation_variables = {
 
 type creet_variables = {
 	initial_radius:	float;
-	initial_speed:	float;
+	initial_speed:	float	accessible;
 	border_margin:	float;
 	panic:					float accessible;
 	safe_space:			float accessible;
@@ -46,7 +46,7 @@ type creet_variables = {
 
 let simulation_width = 10000.
 let simulation: simulation_variables = {
-	seed					=	new accessible 666;
+	seed					=	new accessible 666; (* TODO : seed *)
 	width					=	simulation_width;
 	height				=	simulation_width /. 2.;
 	hospital_end	=	simulation_width *. 0.1;
@@ -54,16 +54,16 @@ let simulation: simulation_variables = {
 	delta_time		=	new accessible 0.;
 	mouse_pos			=	new accessible @@ Vector.vec2 (Types.Vec_None) (Types.Vec_None);
 	grabbed_creet	=	new accessible (-1);
-	is_optimized	=	new accessible true;
+	is_optimised	=	new accessible true;
 	initial_pop		=	new accessible 10;
-	birth_interval=	new accessible 5.;
+	birth_interval=	new accessible 10.;
 	troop					=	Hashtbl.create 200;
 }
 
 
 let creet: creet_variables = {
 	initial_radius	=									1.25;
-	initial_speed		=									1000.;
+	initial_speed		=	new accessible	500.;
 	border_margin		=									0.10;
 	panic						=	new accessible	1.05;
 	safe_space			=	new accessible	50.	;
@@ -75,4 +75,3 @@ let creet: creet_variables = {
 	mutation_timer	= new accessible	10.	; (* Check per x/s *)
 	death_timer			=	new accessible	60.	;
 }
-

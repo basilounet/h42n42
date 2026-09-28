@@ -38,18 +38,15 @@ let create_img (creet : t) =
 		()
 
 
-let creet_nodes : (int, Dom_html.imageElement Js.t) Hashtbl.t = Hashtbl.create 16
-
-
 let get_or_create_node (body: #Dom.node Js.t) (creet : t) : Dom_html.imageElement Js.t =
-	match Hashtbl.find_opt creet_nodes creet.id with
+	match creet.html with
 	| Some node -> node
 	| None ->
-		let elt = create_img creet in
-		let node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img elt in
-		Dom.appendChild body node;
-		Hashtbl.add creet_nodes creet.id node;
-		node
+	let elt = create_img creet in
+	let node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img elt in
+	creet.html <- Some node;
+	Dom.appendChild body node;
+	node
 
 		
 let update (body: #Dom.node Js.t) (creet : t) : t =
@@ -94,9 +91,9 @@ let be_dead (creet: t): t =
 	Statistics.change_creet_state creet Dead;
 	creet.state <- Dead;
 	let body = Dom_html.document##.body in
-	let node = Hashtbl.find creet_nodes creet.id in
-	Dom.removeChild body node;
-	creet
+	match creet.html with
+	| Some node -> Dom.removeChild body node; creet
+	| None -> creet
 
 
 let be_contaminated (creet: t): t =
@@ -129,7 +126,7 @@ let be_released (creet: t): t =
 		match Background.is_in_hospital creet.pos.x with
 		| true -> 
 		Sounds.play_sound_effect Sounds.SHealing;
-    Statistics.stats.score#add (+) 250;
+		Statistics.stats.score#add (+) 200;
 		be_healed creet
 		| false ->creet
 	end
@@ -140,24 +137,25 @@ let create ?(fake = false) (seed: int) (id: int): t =
 	if not fake then Statistics.add_creet ();
 	Random.init (seed + id);
 	{
-		random		= Random.get_state ();
-		id			= id;
-		state		= Healthy;
-		seed		= seed + id;
+		id =				id;
+		state =			Healthy;
+		seed =			seed + id;
 		direction	= vec2 (Float_t 1.) (Float_t 0.);
-		speed		= Params.creet.initial_speed;
-		target		= -1;
-		radius		= Params.creet.initial_radius;
-		pos			= vec2 (Float_t 0.) (Float_t 0.);
+		speed =			Params.creet.initial_speed#get ();
+		target =		-1;
+		radius =		Params.creet.initial_radius;
+		pos =				vec2 (Float_t 0.) (Float_t 0.);
 		time_sick	= -1.;
 		grabbed		= false;
+		html =			None;
+		random		= Random.get_state ();
 	}
 
 
 let generate_position (creet: t): vec2 =
 	let prev_rand	= Random.get_state () in
 	Random.set_state creet.random;
-	let minx		= Params.simulation.width  *. Params.creet.border_margin in
+	let minx		= Params.simulation.width	*. Params.creet.border_margin in
 	let miny		= Params.simulation.height *. Params.creet.border_margin in
 	let randx		= minx +. Random.float (Params.simulation.width -. minx) in
 	let randy		= miny +. Random.float (Params.simulation.height -. miny) in
