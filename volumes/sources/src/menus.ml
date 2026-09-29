@@ -92,15 +92,11 @@ let my_pie curr_alive contaminated evolution dead = make_pie_chart
 		{ value = dead; color = "#000000"; icon = "/static/images/UI/icons/dead.png" };
 	]
 
-type live_stat = {
-	elt : Html_types.div_content elt;
-	set : string -> unit;
-}
 let close_button = button ~a:[a_class ["pause_button"]; a_id "return_button"] [txt "Go back to Game"]
-let retry_button = button ~a:[a_class ["pause_button"]; a_id "retry_button"; a_style "top: 60vh; left: 50%;"] [txt "Retry"]
-let easy_button = button ~a:[a_class ["difficulty"]; a_id "box_easy"	; a_style "left: 45vw;"][]
-let normal_button = button ~a:[a_class ["difficulty"]; a_id "box_normal"; a_style "left: 50vw;"][]
-let hard_button = button ~a:[a_class ["difficulty"]; a_id "box_hard"	; a_style "left: 55vw"][]
+let retry_button = button ~a:[a_class ["pause_button"]; a_id "retry_button"; a_style "top: 60%; left: 50%;"] [txt "Retry"]
+let easy_button = button ~a:[a_class ["difficulty"]; a_id "box_easy"; a_style "left: 35%;"][]
+let normal_button = button ~a:[a_class ["difficulty"]; a_id "box_normal"; a_style "left: 50%;"][]
+let hard_button = button ~a:[a_class ["difficulty"]; a_id "box_hard"	; a_style "left: 65%"][]
 let slider_input (id: string) (min: int) (max: int) (step: float) (value: string) =
 	input () ~a:[
 		a_input_type `Range; a_id id;
@@ -127,14 +123,14 @@ let sound_dead_input = 					checkbox_input "sound_dead" true
 let sound_reproduction_input =	checkbox_input "sound_reproduction" true
 
 let create_slider (icon: string) (x: string) (y: string) slider =
-div ~a:[a_class ["slider"]; a_style ("left:"^x^"vw;top:"^y^"vh"); a_id icon] [
+div ~a:[a_class ["slider"]; a_style ("left:"^x^"%;top:"^y^"%"); a_id icon] [
 	p ~a:[a_class ["slider_icon"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
 	p ~a:[a_class ["text"]; a_style "top: 0; left: 50%"]	[txt icon];
 	slider;
 ]
 
 let create_checkbox (icon: string) (x: string) (y: string) checkbox = 
-div ~a:[a_style ("position:absolute;left:"^x^"vw;top:"^y^"vh;width:3vw;height:3vw"); a_id ("sound_"^icon)] [
+div ~a:[a_style ("position:absolute;left:"^x^"%;top:"^y^"%;width:3vw;height:3vw"); a_id ("sound_"^icon)] [
 	p ~a:[a_class ["check_label"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
 	checkbox;		
 ]
@@ -186,21 +182,18 @@ let evolution_fun v =
 	let value: float = (float_of_js_string evolution_node##.max)
 		-. (float_of_js_string v)
 		+. (float_of_js_string evolution_node##.min) in
-	(* Printf.printf "mutation_timer: %f\n" @@ value; *)
 	Params.creet.mutation_timer#set value
 
 let speed_fun v =
 	Params.creet.initial_speed#set (float_of_js_string v)
 
 let sound_effect_fun v = 
-	(* Printf.printf "v: %s, sound_effect_sound: %f\n" (Js.to_string v) !Sounds.sound_effect_sound; *)
 	Sounds.sound_effect_sound := float_of_js_string v
 
-(* Other callbacks for of the page, e.g. a slider / button *)
+
+(* Other callbacks for of the page, e.g. a slider / button / checkbox *)
 let setup_slider_listener (name: string) node_to_listen fun_of_value = 
 	async (fun () -> Lwt_js_events.inputs node_to_listen (fun _ev _handler ->
-		(* let v = Js.to_string node_to_listen##.value |> float_of_string in
-		Printf.printf "%s: %.0f\n" name v; *)
 		set_slider_value node_to_listen node_to_listen##.value fun_of_value;
 		Sounds.play_click "3";
 
@@ -210,8 +203,6 @@ let setup_slider_listener (name: string) node_to_listen fun_of_value =
 let setup_checkbox_listener (name : string) (sound_type: Sounds.sound_effect_type) node on_toggle =
 	Lwt.async (fun () ->
 	Lwt_js_events.clicks node (fun _ev _handler ->
-		(* let is_checked = Js.to_bool node##.checked in *)
-		(* Printf.printf "%s: %b\n" name is_checked; *)
 		Sounds.play_click @@ string_of_int (Random.int 4);
 		on_toggle sound_type ;
 		Lwt.return_unit
@@ -222,7 +213,6 @@ let sound_check_fun (sound_type: Sounds.sound_effect_type) =
 	Sounds.toggle_sound sound_type
 
 let toggle_optimised (sound_type: Sounds.sound_effect_type) =
-	(* Printf.printf "is_optimised: %b\n" @@ not @@ Params.simulation.is_optimised#get (); *)
 	Params.simulation.is_optimised#set (not @@ Params.simulation.is_optimised#get ())
 
 let setup_difficulty_buttons node_to_listen fn = async (fun () ->
@@ -249,7 +239,6 @@ let one_time_setup_listeners () : unit =
 	already_setup_listeners := true;
 	async (fun () -> (** Retry **)
 		Lwt_js_events.clicks retry_node (fun ev _handler ->
-		Printf.printf "retry\n"; (* TODO : here *)
 		!on_retry ();
 		Sounds.play_click @@ string_of_int (Random.int 4);
 		(* sound_effects_node##.value := js_string_of_float @@ mid_value (float_of_js_string sound_effects_node##.min) (float_of_js_string sound_effects_node##.max); *)
@@ -275,60 +264,67 @@ let one_time_setup_listeners () : unit =
 	setup_difficulty_buttons hard_node		(fun min max -> max);
 	()
 
-let pause_menu body : unit =
-	one_time_setup_listeners ();
-
-	let pause_html = [
+let pause_html () = div ~a:[a_class ["pause_div"]; a_id "Pause"] ([
 		(p ~a:[a_class ["pause_bg"]][]);
 		(p ~a:[a_class ["pause_title"]][]);
 		(close_button);
 		(retry_button);
 		(p ~a:[a_class ["text"]; a_style "font-size: 2.2vw;"][txt "Difficulty"]);
-		(p ~a:[a_class ["text"]; a_style "top: 77vh; left: 45vw"][txt "Easy"]);
-		(p ~a:[a_class ["text"]; a_style "top: 77vh; left: 50vw"][txt "Normal"]);
-		(p ~a:[a_class ["text"]; a_style "top: 77vh; left: 55vw"][txt "Hard"]);
+		(p ~a:[a_class ["text"]; a_style "top: 77%; left: 35%"][txt "Easy"]);
+		(p ~a:[a_class ["text"]; a_style "top: 77%; left: 50%"][txt "Normal"]);
+		(p ~a:[a_class ["text"]; a_style "top: 77%; left: 65%"][txt "Hard"]);
 		(easy_button);
 		(normal_button);
 		(hard_button); 
-	] in 
-	let settings_html = [
-		 (p ~a:[a_class ["settings_title"]][]);
-		 (p ~a:[a_class ["settings"]][]);
-		 (create_slider		"music"								"20"	"28"		music_input);
-		 (create_slider		"sound effects"				"20"	"35.5"	sound_effects_input);
-		 (create_checkbox "optimised"						"5.7" "25"		optimised_input);
-		 (create_checkbox "contamination"				"8"		"40"		sound_contamination_input);
-		 (create_checkbox "evolution"						"12"	"40"		sound_evolution_input);
-		 (create_checkbox "reproduction"				"16"	"40"		sound_heal_input);
-		 (create_checkbox "dead"								"20"	"40"		sound_dead_input);
-		 (create_checkbox "max alive"						"24"	"40"		sound_reproduction_input);
-		 (create_slider 	"reproduction" 				"20"	"53"		reproduction_input);
-		 (create_slider 	"initial population"	"20"	"61"		initial_pop_input);
-		 (create_slider 	"contamination"				"20"	"70"		contamination_input);
-		 (create_slider 	"evolution"						"20"	"78"		evolution_input);
-		 (create_slider 	"speed"								"20"	"86"		speed_input);
-	] in
-	let stats_html = [
-		(p ~a:[a_class ["stats_title"]][]);
-		(p ~a:[a_class ["stats"]][]);
-		(p ~a:[a_class ["text"]; a_style "top: 22.5vh; left: 83vw; font-size: 3vw"] [txt @@ Utils.time_elapsed_format ()]);
-		(p ~a:[a_class ["text"]; a_style "top: 29vh; left: 83vw; font-size: 2.2vw; width: 20vw"] [txt @@ Printf.sprintf "Score: %d" @@ Statistics.stats.score#get ()]);
-		(single_stat "reproduction" "Healed" "78" "39" @@ string_of_int @@ Statistics.stats.healed#get ());
-		(single_stat "max alive" "Max alive" "88" "39" @@ string_of_int @@ Statistics.stats.max_alive#get ());
-		(single_stat "contamination" "Contaminated" "78" "48" @@ string_of_int @@ Statistics.stats.contaminations#get ());
-		(single_stat "evolution" "Evolutions" "88" "48" @@ string_of_int @@ Statistics.stats.evolutions#get ());
-		(p ~a:[a_class ["divider"]] []);
-		(my_pie 
-		(float_of_int @@ Statistics.stats.healthy#get ())
-		(float_of_int @@ Statistics.stats.sick#get ())
-		(float_of_int @@ (Statistics.stats.mean#get () + Statistics.stats.berserk#get ()))
-		(float_of_int @@ Statistics.stats.dead#get ()))
-		(* curr_alive contaminated evolution dead *)
-	] in
-	let overlay = div ~a:[a_class ["pause_overlay"]] (pause_html @ settings_html @ stats_html) in
+	])
+
+let settings_html () = div ~a:[a_class ["settings_div"]; a_id "Settings"] ([
+	(p ~a:[a_class ["settings_title"]][]);
+	(p ~a:[a_class ["settings"]][]);
+	(create_slider		"music"							"60"	"28"		music_input);
+	(create_slider		"sound effects"			"60"	"35.5"	sound_effects_input);
+	(create_checkbox "optimised"					"16"	"25"		optimised_input);
+	(create_checkbox "contamination"			"30"	"40"		sound_contamination_input);
+	(create_checkbox "evolution"					"40"	"40"		sound_evolution_input);
+	(create_checkbox "reproduction"				"50"	"40"		sound_heal_input);
+	(create_checkbox "dead"								"60"	"40"		sound_dead_input);
+	(create_checkbox "max alive"					"70"	"40"		sound_reproduction_input);
+	(create_slider 	"reproduction" 				"60"	"53"		reproduction_input);
+	(create_slider 	"initial population"	"60"	"61"		initial_pop_input);
+	(create_slider 	"contamination"				"60"	"70"		contamination_input);
+	(create_slider 	"evolution"						"60"	"78"		evolution_input);
+	(create_slider 	"speed"								"60"	"86"		speed_input);
+])
+
+let stats_html () = div ~a:[a_class ["stats_div"]; a_id "Stats"] ([
+	(p ~a:[a_class ["stats_title"]][]);
+	(p ~a:[a_class ["stats"]][]);
+	(p ~a:[a_class ["text"]; a_style "top: 22.5%; left: 50%; font-size: 3vw"] [txt @@ Utils.time_elapsed_format ()]);
+	(p ~a:[a_class ["text"]; a_style "top: 29%; left: 50%; font-size: 2.2vw; width: 75%"] [txt @@ Printf.sprintf "Score: %d" @@ Statistics.stats.score#get ()]);
+	(single_stat "reproduction" "Healed" "35" "39" @@ string_of_int @@ Statistics.stats.healed#get ());
+	(single_stat "max alive" "Max alive" "65" "39" @@ string_of_int @@ Statistics.stats.max_alive#get ());
+	(single_stat "contamination" "Contaminated" "35" "48" @@ string_of_int @@ Statistics.stats.contaminations#get ());
+	(single_stat "evolution" "Evolutions" "65" "48" @@ string_of_int @@ Statistics.stats.evolutions#get ());
+	(p ~a:[a_class ["divider"]] []);
+	(my_pie 
+	(float_of_int @@ Statistics.stats.healthy#get ())
+	(float_of_int @@ Statistics.stats.sick#get ())
+	(float_of_int @@ (Statistics.stats.mean#get () + Statistics.stats.berserk#get ()))
+	(float_of_int @@ Statistics.stats.dead#get ()))
+	(* curr_alive contaminated evolution dead *)
+])
+
+
+let pause_menu body : unit =
+	one_time_setup_listeners ();
+
+	let overlay = div ~a:[a_class ["pause_overlay"]] ([]) in
 
 	let overlay_node =				Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div overlay in
 	Dom.appendChild body overlay_node;
+	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ pause_html ();
+	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ settings_html ();
+	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ stats_html ();
 
 	(* a promise that only resolves when something explicitly triggers it *)
 	let external_close, wakener = wait () in

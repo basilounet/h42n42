@@ -100,6 +100,6 @@ let calculate_score () =
 		(float_of_int @@ stats.healed#get () |> max 1.)
 		/.
 		(float_of_int @@ (stats.dead#get ()) |> max 1.) 
-		|> ( *. ) 0.5 in
+		|> ( *. ) 0.75 in
 	(* Printf.printf "ratio: %f\n" efficiency; *)
 	stats.score#add (+) @@ int_of_float @@ (float_of_int @@ stats.healthy#get ()) *. efficiency

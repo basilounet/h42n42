@@ -19,8 +19,8 @@ let string_of_state = function
 
 let style_string (creet: t) : string = 
 	let size_factor = match creet.state with
-		| Mean	-> (1. -. 0.15) /. 10.
-		| _		-> (1.) /. 10.
+		| Mean	-> (1. -. 0.15) *. 1.5
+		| _		-> (1.) *. 1.5
 	in
 	let diameter = creet.radius *. 2. *. size_factor in
 	let screen_x = creet.pos.x /. Params.simulation.width *. 100. in

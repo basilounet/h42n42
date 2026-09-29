@@ -10,7 +10,7 @@ let js_to_int num = num |> Js.float_of_number |> int_of_float
 let try_grab (): Creet.t option =
 	let mouse_pos = Params.simulation.mouse_pos# get() in
 	let is_creet_clicked (creet: Creet.t): bool =
-		let size_square =  creet.radius *. creet.radius *. 250. in
+		let size_square =  creet.radius *. creet.radius *. 25000. in
 		if creet.pos |--| mouse_pos < size_square
 		then
 			true

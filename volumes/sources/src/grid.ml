@@ -104,4 +104,7 @@ let iter_neighbours_optimised (f: Creet.t -> unit) (creet: Creet.t): unit =
 let iter_neighbours (f: Creet.t -> unit) (creet: Creet.t): unit =
   match Params.simulation.is_optimised#get () with
   | true  -> iter_neighbours_optimised f creet
-  | false -> iter_neighbours_optimised f creet (* TODO : naive version*)
+  | false ->
+  Params.simulation.troop |> Hashtbl.to_seq_values |> Seq.iter 
+		(fun (other: Creet.t) -> if other.id <> creet.id && not other.grabbed then f other)
+
