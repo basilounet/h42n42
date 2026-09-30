@@ -139,7 +139,6 @@ let avoid_bounds (creet: Creet.t): Creet.t =
 
 
 	let compute_force_len (force: vec2): float =
-		(* TODO: Make it so that the straighter it goes into the wall, the more it turns -> [1; +inf[ *)
 		0.
 	in
 
@@ -190,15 +189,15 @@ let random_deviation (creet: Creet.t): Creet.t =
 		let speed_const		= 0.03 in
 		let (angle_deg, speed_mult) =
 			match random_num with
-			| 0 -> ((	rotation_const), (1.00 +. speed_const))
-			| 1 -> ((						 0.0), (1.00 +. speed_const))
-			| 2 -> ((-.rotation_const), (1.00 +. speed_const))
-			| 3 -> ((	rotation_const), (1.00							 ))
+			| 0 -> ((	rotation_const),  (1.00 +. speed_const+. 0.02))
+			| 1 -> ((						 0.0),  (1.00 +. speed_const+. 0.02))
+			| 2 -> ((-.rotation_const), (1.00 +. speed_const+. 0.02))
+			| 3 -> ((	rotation_const),  (1.00							 ))
 			| 4 -> ((-.rotation_const), (1.00							 ))
-			| 5 -> ((	rotation_const), (1.00 -. speed_const))
-			| 6 -> ((						 0.0), (1.00 -. speed_const))
-			| 7 -> ((	-.rotation_const), (1.00 -. speed_const))
-			| _ -> ((				 0.0), (1.00					))
+			| 5 -> ((	rotation_const),  (1.00 -. speed_const))
+			| 6 -> ((						 0.0),  (1.00 -. speed_const))
+			| 7 -> ((	-.rotation_const),(1.00 -. speed_const))
+			| _ -> ((				 0.0),      (1.00					))
 		in
 		if angle_deg <> 0.0 then
 			creet.direction <- (creet.direction |> rotate angle_deg);
@@ -295,8 +294,8 @@ let berserk_brain (creet: Creet.t): unit =
 
 let select_behaviour (creet: Creet.t): unit = 
 	match creet.grabbed with
-	| true			-> grabbed creet
-	| _				->
+	| true	-> grabbed creet
+	| _			->
 	match creet.state with
 	| Types.Healthy -> healthy_brain creet
 	| Types.Sick	-> sick_brain creet
@@ -334,12 +333,23 @@ let rec spawn_creets = function
 
 
 let time_since_last_birth = ref 0.
+let time_since_last_birth_upgrade = ref 0.
 
 let give_birth () =
-	match Statistics.stats.healthy#get () with
-	| 0 -> ()
+	match Statistics.stats.healthy#get (), Params.simulation.grabbed_creet#get () with
+	| 0, _ -> ()
+	| 1, g when g <> -1 -> () 
 	| _ ->
-	time_since_last_birth := !time_since_last_birth +. Params.simulation.delta_time#get ();
+	time_since_last_birth_upgrade := !time_since_last_birth_upgrade +. Params.simulation.delta_time#get ();
+	let birth_upgrade_time = Params.simulation.birth_upgrade#get () in
+  begin match time_since_last_birth_upgrade with
+    | t when !t < birth_upgrade_time -> ()
+    | t -> (* Triggers every birth_upgrade seconds *)
+    t := !t -. birth_upgrade_time;
+    Params.simulation.birth_interval#set ((Params.simulation.birth_interval#get ()) +. 1.)
+    (* Printf.printf "New birth_interval: %f\n" @@ Params.simulation.birth_interval#get (); *)
+  end;
+  time_since_last_birth := !time_since_last_birth +. Params.simulation.delta_time#get ();
 	match time_since_last_birth with
 	| t when !t < (Params.simulation.birth_interval#get ()) -> ()
 	| t -> (* Triggers every birth_interval seconds *)
@@ -367,14 +377,23 @@ let rec simulation_loop () : unit Lwt.t =
 	match !running with
 	| false -> cleanup (); Lwt.return_unit
 	| true ->
+	match Statistics.stats.alive#get () with
+	| 0 -> 
+	Sounds.play_sound "/static/sounds/game/game_lost.wav";
+  Menus.pause_menu (); Menus.lost_menu (); Lwt.return_unit
+	| _ ->
 	let new_time = Unix.gettimeofday () in
 	let delta_time = new_time -. !last_time in
-	Params.simulation.delta_time#set delta_time;
+	Params.simulation.delta_time#set begin
+		match Statistics.stats.healthy#get (), Statistics.stats.sick#get () with
+		| healthy, sick when healthy + sick = 0 -> delta_time *. 50.;
+		| _ -> delta_time
+		end;
 	last_time := new_time;
 	Background.update_stats ();
 
 	if not @@ Menus.is_pause () then begin
-		Statistics.stats.time_elapsed#add (+.) delta_time;
+		Statistics.stats.time_elapsed#add (+.) @@ Params.simulation.delta_time#get ();
 		Statistics.calculate_score ();
 		give_birth ();
 		Grid.clear ();

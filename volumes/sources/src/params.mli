@@ -20,6 +20,7 @@ type simulation_variables = {
 	is_optimised:		bool				accessible;
 	initial_pop:		int					accessible;
 	birth_interval:	float				accessible;
+	birth_upgrade:	float				accessible;
 	troop:					Types.troop;
 }
 

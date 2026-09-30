@@ -10,7 +10,7 @@ let js_to_int num = num |> Js.float_of_number |> int_of_float
 let try_grab (): Creet.t option =
 	let mouse_pos = Params.simulation.mouse_pos# get() in
 	let is_creet_clicked (creet: Creet.t): bool =
-		let size_square =  creet.radius *. creet.radius *. 25000. in
+		let size_square =	creet.radius *. creet.radius *. 25000. in
 		if creet.pos |--| mouse_pos < size_square
 		then
 			true
@@ -42,9 +42,9 @@ let setup_click target: unit =
 
 	Lwt.async (fun () ->
 		Lwt_js_events.clicks target (fun ev _handler ->
-    match Menus.is_pause () with
-    | true  -> Lwt.return_unit
-    | false ->
+		match Menus.is_pause () with
+		| true	-> Lwt.return_unit
+		| false ->
 		match Params.simulation.grabbed_creet#get () with
 		| -1	-> grab_creet ()
 		| _		-> released_grabbed_creet ()
@@ -59,7 +59,7 @@ let track_cursor target: unit =
 			let winsize = Background.get_wsize () in
 			let width	= winsize.x in
 			let height	= winsize.y in
-			let sim_x	= pos.x /. width  *. Params.simulation.width  in
+			let sim_x	= pos.x /. width	*. Params.simulation.width	in
 			let sim_y	= pos.y /. height *. Params.simulation.height in
 			let sim_pos = vec2 (Float_t sim_x) (Float_t sim_y) in
 			Params.simulation.mouse_pos#set (sim_pos);
@@ -67,16 +67,17 @@ let track_cursor target: unit =
 	));
 	()
 
-
 let setup_keypresses target: unit =
 	Lwt.async (fun () -> Lwt_js_events.keypresses target (fun ev _handler ->
 		match ev##.keyCode with
-    (* | 99 -> Printf.printf "speed: %f\n" @@ Params.creet.initial_speed#get ()
-      ; Lwt.return_unit *)
 		(* Enter or Space *)
-		| 13 | 32 -> begin match !Menus.close_modal with
+		| 13 | 32 -> begin
+			match !Menus.lost_menu_node with
+			| Some _ -> Menus.close_lost_menu ()
+			| _ ->
+			match !Menus.close_modal with
 			| Some close_modal -> close_modal ()
-			| None -> Sounds.play_menu "open"; Menus.pause_menu target
+			| None -> Menus.pause_menu ()
 		end; Lwt.return_unit
 		| key -> (*Printf.printf "keyCode: %d\n" key; *)Lwt.return_unit
 	));

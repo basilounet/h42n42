@@ -24,6 +24,7 @@ type simulation_variables = {
 	is_optimised:		bool				accessible;
 	initial_pop:		int					accessible;
 	birth_interval:	float				accessible;
+	birth_upgrade:	float				accessible;
 	troop:					Types.troop;
 }
 
@@ -47,7 +48,7 @@ type creet_variables = {
 
 let simulation_width = 12500.
 let simulation: simulation_variables = {
-	seed					=	new accessible 666; (* TODO : seed *)
+	seed					=	new accessible @@ int_of_float @@ Unix.time ();
 	width					=	simulation_width;
 	height				=	simulation_width /. 2.;
 	hospital_end	=	simulation_width *. 0.1;
@@ -57,7 +58,8 @@ let simulation: simulation_variables = {
 	grabbed_creet	=	new accessible (-1);
 	is_optimised	=	new accessible true;
 	initial_pop		=	new accessible 10;
-	birth_interval=	new accessible 10.;
+	birth_interval=	new accessible 7.;
+	birth_upgrade =	new accessible 30.;
 	troop					=	Hashtbl.create 200;
 }
 
@@ -73,7 +75,7 @@ let creet: creet_variables = {
 	chase						=	new accessible	0.05;
 	infection				=	new accessible	2		; (* Is compared against a Random.int 100 *)
 	berserk_growth	= new accessible	0.01;
-	mutation_timer	= new accessible	10.	; (* Check per x/s *)
+	mutation_timer	= new accessible	10.	; (* Check once every Xs *)
 	death_timer			=	new accessible	60.	;
  	hold_timer		  =	new accessible	10. ;
 }

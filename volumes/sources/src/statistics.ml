@@ -70,11 +70,11 @@ let change_creet_state (creet: Types.creet) (new_state: Types.creet_state): unit
 		stats.contaminations#add (+) 1; 
 		stats.sick#add		(+) 1
 	| Mean ->
-		(* if creet.state = Healthy then stats.contaminations#add	(+) 1; *)
+		if creet.state = Healthy then stats.contaminations#add	(+) 1;
 		stats.evolutions#add	(+) 1; 
 		stats.mean#add		(+) 1
 	| Berserk ->
-		(* if creet.state = Healthy then stats.contaminations#add	(+) 1; *)
+		if creet.state = Healthy then stats.contaminations#add	(+) 1;
 		stats.evolutions#add	(+) 1; 
 		stats.berserk#add	(+) 1
 	| Dead ->
@@ -99,7 +99,8 @@ let calculate_score () =
 	let efficiency = 
 		(float_of_int @@ stats.healed#get () |> max 1.)
 		/.
-		(float_of_int @@ (stats.dead#get ()) |> max 1.) 
-		|> ( *. ) 0.75 in
+		(float_of_int @@ (stats.dead#get ()) |> max 1.) in
 	(* Printf.printf "ratio: %f\n" efficiency; *)
-	stats.score#add (+) @@ int_of_float @@ (float_of_int @@ stats.healthy#get ()) *. efficiency
+	stats.score#add (+) @@ int_of_float @@ ( float_of_int @@
+    stats.healthy#get () - (if Params.simulation.grabbed_creet#get () = -1 then 0 else 1)
+    ) *. efficiency

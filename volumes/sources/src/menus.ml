@@ -21,6 +21,7 @@ type slice = {
 	value : float;	 (* relative weight; doesn't need to sum to 100 *)
 	color : string;
 	icon	: string; (* path to the icon image *)
+	title	: string; (* hover effect *)
 }
 
 let pi = 4.0 *. atan 1.0
@@ -46,7 +47,7 @@ let make_pie_chart
 		| 0. -> (start_angle, paths, icons)
 		| _ ->
 		let sweep = 2. *. pi *. (s.value /. total) in
-		let end_angle = start_angle +. sweep -. 0.0000001 in (* avoid 2pi *)
+		let end_angle = start_angle +. sweep -. 0.0000001 in (* avoid exactly 2pi *)
 		let x0, y0 = point_on_circle ~cx ~cy ~r:radius start_angle in
 		let x1, y1 = point_on_circle ~cx ~cy ~r:radius end_angle in
 		let large_arc = if sweep > pi then 1 else 0 in
@@ -62,12 +63,13 @@ let make_pie_chart
 		let ix, iy = point_on_circle ~cx ~cy ~r:icon_r mid_angle in
 		let icon_img = Svg.image
 			~a:[
-			Svg.a_href s.icon;
-			Svg.a_x (ix -. icon_size /. 2., None);
-			Svg.a_y (iy -. icon_size /. 2., None);
-			Svg.a_width (icon_size, None);
-			Svg.a_height (icon_size, None);
-			] []
+				Svg.a_href		s.icon;
+				Svg.a_x			 (ix -. icon_size /. 2., None);
+				Svg.a_y			 (iy -. icon_size /. 2., None);
+				Svg.a_width	 (icon_size, None);
+				Svg.a_height	(icon_size, None);
+			]
+			[Svg.title (Svg.txt s.title)]
 		in
 		(end_angle, paths @ [slice_path], icons @ [icon_img]))
 		(0., [], [])
@@ -81,16 +83,29 @@ let make_pie_chart
 		]
 		(paths @ icons)
 
-let my_pie curr_alive contaminated evolution dead = make_pie_chart
+
+let pie_pause () = make_pie_chart
 	~cx:100. ~cy:100. ~radius:100.
 	~icon_radius_ratio:0.6
 	~icon_size:40.
 	[
-		{ value = curr_alive; color = "#ec7c30"; icon = "/static/images/UI/icons/reproduction.png" };
-		{ value = contaminated; color = "#9e8484"; icon = "/static/images/UI/icons/contamination.png" };
-		{ value = evolution; color = "#1da546"; icon = "/static/images/UI/icons/evolution.png" };
-		{ value = dead; color = "#000000"; icon = "/static/images/UI/icons/dead.png" };
+		{ value = float_of_int @@ Statistics.stats.healthy#get (); color = "#ec7c30"; icon = "/static/images/UI/icons/reproduction.png"; title = "Healhty creets" };
+		{ value = float_of_int @@ Statistics.stats.sick#get (); color = "#9e8484"; icon = "/static/images/UI/icons/contamination.png"; title = "Sick creets" };
+		{ value = float_of_int @@ Statistics.stats.mean#get () + Statistics.stats.berserk#get (); color = "#1da546"; icon = "/static/images/UI/icons/evolution.png"; title = "Mean / Berserk creets" };
+		{ value = float_of_int @@ Statistics.stats.dead#get (); color = "#000000"; icon = "/static/images/UI/icons/dead.png"; title = "Dead creets" };
 	]
+
+let pie_lost () = make_pie_chart
+	~cx:100. ~cy:100. ~radius:100.
+	~icon_radius_ratio:0.6
+	~icon_size:40.
+	[
+		{ value = float_of_int @@ Statistics.stats.healed#get (); color = "#ec7c30"; icon = "/static/images/UI/icons/reproduction.png"; title = "Total healed creets" };
+		{ value = float_of_int @@ Statistics.stats.contaminations#get (); color = "#9e8484"; icon = "/static/images/UI/icons/contamination.png"; title = "Total contaminated creets" };
+		{ value = float_of_int @@ Statistics.stats.evolutions#get () + Statistics.stats.berserk#get (); color = "#1da546"; icon = "/static/images/UI/icons/evolution.png"; title = "Mean / Berserk evolutions" };
+		{ value = float_of_int @@ Statistics.stats.dead#get (); color = "#000000"; icon = "/static/images/UI/icons/dead.png"; title = "Dead creets" };
+	]
+
 
 let close_button = button ~a:[a_class ["pause_button"]; a_id "return_button"] [txt "Go back to Game"]
 let retry_button = button ~a:[a_class ["pause_button"]; a_id "retry_button"; a_style "top: 60%; left: 50%;"] [txt "Retry"]
@@ -108,7 +123,7 @@ let sound_effects_input =	slider_input "sound_effects" 	0 1		0.05	"50"
 let reproduction_input =	slider_input "reproduction"		5 15	1.		@@ string_of_float @@ Params.simulation.birth_interval#get ()
 let initial_pop_input =		slider_input "initial_pop"		5 100	1.		@@ string_of_int @@ Params.simulation.initial_pop#get ()
 let contamination_input =	slider_input "contamination"	1 4		1.		@@ string_of_int @@ Params.creet.infection#get ()
-let evolution_input =			slider_input "evolution"			1 10	1.		@@ string_of_float @@ Params.creet.mutation_timer#get ()
+let evolution_input =			slider_input "evolution"			1 15	1.		@@ string_of_float @@ Params.creet.mutation_timer#get ()
 let speed_input = 				slider_input "speed" 					250 750	1.	@@ string_of_float @@ Params.creet.initial_speed#get ()
 
 let checkbox_input (id : string) (checked : bool) =
@@ -129,8 +144,8 @@ div ~a:[a_class ["slider"]; a_style ("left:"^x^"%;top:"^y^"%"); a_id icon] [
 	slider;
 ]
 
-let create_checkbox (icon: string) (x: string) (y: string) checkbox = 
-div ~a:[a_style ("position:absolute;left:"^x^"%;top:"^y^"%;width:3vw;height:3vw"); a_id ("sound_"^icon)] [
+let create_checkbox (icon: string) (x: string) (y: string) (hover: string) checkbox = 
+div ~a:[a_title hover; a_style ("position:absolute;left:"^x^"%;top:"^y^"%;width:3vw;height:3vw"); a_id ("sound_"^icon)] [
 	p ~a:[a_class ["check_label"]; a_style ("background-image: url('/static/images/UI/icons/"^icon^".png')")] [];
 	checkbox;		
 ]
@@ -182,6 +197,7 @@ let evolution_fun v =
 	let value: float = (float_of_js_string evolution_node##.max)
 		-. (float_of_js_string v)
 		+. (float_of_js_string evolution_node##.min) in
+		(* Printf.printf "evolution: %f\n" value; *)
 	Params.creet.mutation_timer#set value
 
 let speed_fun v =
@@ -241,7 +257,6 @@ let one_time_setup_listeners () : unit =
 		Lwt_js_events.clicks retry_node (fun ev _handler ->
 		!on_retry ();
 		Sounds.play_click @@ string_of_int (Random.int 4);
-		(* sound_effects_node##.value := js_string_of_float @@ mid_value (float_of_js_string sound_effects_node##.min) (float_of_js_string sound_effects_node##.max); *)
 		Lwt.return_unit
 	));
 	setup_slider_listener "sound_effects" 	sound_effects_node	sound_effect_fun;
@@ -283,12 +298,12 @@ let settings_html () = div ~a:[a_class ["settings_div"]; a_id "Settings"] ([
 	(p ~a:[a_class ["settings"]][]);
 	(create_slider		"music"							"60"	"28"		music_input);
 	(create_slider		"sound effects"			"60"	"35.5"	sound_effects_input);
-	(create_checkbox "optimised"					"16"	"25"		optimised_input);
-	(create_checkbox "contamination"			"30"	"40"		sound_contamination_input);
-	(create_checkbox "evolution"					"40"	"40"		sound_evolution_input);
-	(create_checkbox "reproduction"				"50"	"40"		sound_heal_input);
-	(create_checkbox "dead"								"60"	"40"		sound_dead_input);
-	(create_checkbox "max alive"					"70"	"40"		sound_reproduction_input);
+	(create_checkbox "optimised"					"16"	"25"		"Toggle optimsed version"	optimised_input);
+	(create_checkbox "contamination"			"30"	"40"		"Contamination sound" 		sound_contamination_input);
+	(create_checkbox "evolution"					"40"	"40"		"Evolution sound" 				sound_evolution_input);
+	(create_checkbox "reproduction"				"50"	"40"		"Healing sound" 					sound_heal_input);
+	(create_checkbox "dead"								"60"	"40"		"Death sound" 						sound_dead_input);
+	(create_checkbox "max alive"					"70"	"40"		"New creet sound" 				sound_reproduction_input);
 	(create_slider 	"reproduction" 				"60"	"53"		reproduction_input);
 	(create_slider 	"initial population"	"60"	"61"		initial_pop_input);
 	(create_slider 	"contamination"				"60"	"70"		contamination_input);
@@ -296,50 +311,94 @@ let settings_html () = div ~a:[a_class ["settings_div"]; a_id "Settings"] ([
 	(create_slider 	"speed"								"60"	"86"		speed_input);
 ])
 
-let stats_html () = div ~a:[a_class ["stats_div"]; a_id "Stats"] ([
+let stats_html (additionnal_style: string) pie = 
+	div ~a:[a_class ["stats_div"]; a_id "Stats"; a_style additionnal_style] ([
 	(p ~a:[a_class ["stats_title"]][]);
 	(p ~a:[a_class ["stats"]][]);
 	(p ~a:[a_class ["text"]; a_style "top: 22.5%; left: 50%; font-size: 3vw"] [txt @@ Utils.time_elapsed_format ()]);
 	(p ~a:[a_class ["text"]; a_style "top: 29%; left: 50%; font-size: 2.2vw; width: 75%"] [txt @@ Printf.sprintf "Score: %d" @@ Statistics.stats.score#get ()]);
 	(single_stat "reproduction" "Healed" "35" "39" @@ string_of_int @@ Statistics.stats.healed#get ());
 	(single_stat "max alive" "Max alive" "65" "39" @@ string_of_int @@ Statistics.stats.max_alive#get ());
-	(single_stat "contamination" "Contaminated" "35" "48" @@ string_of_int @@ Statistics.stats.contaminations#get ());
+	(single_stat "contamination" "Contaminations" "35" "48" @@ string_of_int @@ Statistics.stats.contaminations#get ());
 	(single_stat "evolution" "Evolutions" "65" "48" @@ string_of_int @@ Statistics.stats.evolutions#get ());
 	(p ~a:[a_class ["divider"]] []);
-	(my_pie 
-	(float_of_int @@ Statistics.stats.healthy#get ())
-	(float_of_int @@ Statistics.stats.sick#get ())
-	(float_of_int @@ (Statistics.stats.mean#get () + Statistics.stats.berserk#get ()))
-	(float_of_int @@ Statistics.stats.dead#get ()))
-	(* curr_alive contaminated evolution dead *)
+	(pie)
 ])
 
 
-let pause_menu body : unit =
+let lost_menu_node = ref None
+
+let pause_menu () : unit =
+	match !close_modal with
+	| Some _ -> ()
+	| None ->	
+	Sounds.play_menu "open";
+	let body = Dom_html.document##.body in
 	one_time_setup_listeners ();
 
-	let overlay = div ~a:[a_class ["pause_overlay"]] ([]) in
+	let overlay = div ~a:[a_class ["pause_overlay"]; a_id "Pause Menu"] ([]) in
 
-	let overlay_node =				Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div overlay in
+	let overlay_node = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div overlay in
 	Dom.appendChild body overlay_node;
 	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ pause_html ();
 	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ settings_html ();
-	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ stats_html ();
+	Dom.appendChild overlay_node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@ stats_html "" @@ pie_pause ();
 
 	(* a promise that only resolves when something explicitly triggers it *)
 	let external_close, wakener = wait () in
-	async (fun () ->
-		pick [
-			(Lwt_js_events.click close_node >|= fun _ -> ());
-			external_close;
-		] >>= fun () ->
+	let do_close () =
 		Sounds.play_menu "close";
-		!on_start ();
 		Dom.removeChild body overlay_node;
 		close_modal := None;
-		return_unit
-	);
+		!on_start ()
+		in
+		async (fun () ->
+			pick [
+				(Lwt_js_events.click close_node >|= fun _ -> ());
+				external_close;
+			] >>= fun () -> do_close (); return_unit
+				);
 	(* the closer callback for external callers, e.g. a keypress handler *)
 	close_modal := Some (fun () -> wakeup wakener ());
+	()
 
+
+let lost_menu_node = ref None
+
+let close_lost_menu () : unit =
+	match !lost_menu_node with
+	| None -> ()
+	| Some node ->
+		Sounds.play_menu "close";
+		Dom.removeChild (Dom_html.document##.body) node;
+		lost_menu_node := None
+
+let lost_menu () : unit =
+	match !lost_menu_node with
+	| Some _ -> ()
+	| None ->
+	(* Printf.printf "open lost menu"; *)
+	let body = Dom_html.document##.body in
+	let overlay = div ~a:[a_class ["pause_overlay"]; a_id "Lost Menu"; a_style "background: rgba(0,0,0,0.95)"] ([]) in
+	let side_image src style = img
+		~src:("/static/images/"^src^".png")
+		~alt:(src)
+		~a:[a_id src; a_draggable false; a_style (
+			"position: absolute; top: 50%; left: 25%; width: 30%; height: 80%; transform: translate(-50%, -50%);"
+			^ style)]
+		() in
+
+	lost_menu_node := Some (Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div overlay);
+	match !lost_menu_node with
+	| None -> ()
+	| Some node -> 
+	Dom.appendChild body node;
+	Dom.appendChild node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_div @@
+		stats_html "top: 60%; left: 50%; width: 28%; height: 85%" @@ pie_lost ();
+	Dom.appendChild node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img @@
+		side_image "UI/banners/game_lost" "top: 12%; left: 50%; width: 80%; height: 17.5%";
+	Dom.appendChild node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img @@
+		side_image "creets/mean" "left: 17.5%";
+	Dom.appendChild node @@ Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_img @@
+		side_image "creets/berserk" "left: 82.5%";
 	()

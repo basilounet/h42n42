@@ -57,23 +57,23 @@ let setup_background_music body =
 	Dom.appendChild body bgm_node;
 	play_track 0
 
+let play_sound source =
+	let audio_node = audio_node source in
+	audio_node##.volume := Js.number_of_float !sound_effect_sound;
+	audio_node##play |> ignore
+
+
 let play_sound_effect (sound_type: sound_effect_type) : unit = 
 	match (sound_effect_type_to_int sound_type) |> List.nth !activated_sounds with
 	| false -> ()
 	| true ->
-	let audio_node = audio_node @@ sound_effect_type_to_source sound_type in
-	audio_node##.volume := Js.number_of_float !sound_effect_sound;
-	audio_node##play |> ignore
+  play_sound @@ sound_effect_type_to_source sound_type
 
 let play_click (num: string) : unit = 
   let source = "/static/sounds/UI/click_" ^ num ^ ".wav" in
-	let audio_node = audio_node source in
-	audio_node##.volume := Js.number_of_float !sound_effect_sound;
-	audio_node##play |> ignore
+	play_sound source
 
 let play_menu (action: string): unit = 
   let source = "/static/sounds/UI/menu_" ^ action ^ ".wav" in
-	let audio_node = audio_node source in
-	audio_node##.volume := Js.number_of_float !sound_effect_sound;
-	audio_node##play |> ignore
+	play_sound source
 

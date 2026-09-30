@@ -106,7 +106,7 @@ let be_contaminated (creet: t): t =
 	creet |>
 	match random_num with
 	| 0	-> be_mean
-	| 1 -> be_berserk
+  | 1 -> be_berserk
 	| _ -> be_sick
 
 
@@ -131,7 +131,7 @@ let be_released (creet: t): t =
 		match Background.is_in_hospital creet.pos.x with
 		| true -> 
 		Sounds.play_sound_effect Sounds.SHealing;
-		Statistics.stats.score#add (+) 200;
+		Statistics.stats.score#add (+) 150;
 		be_healed creet
 		| false ->creet
 	end

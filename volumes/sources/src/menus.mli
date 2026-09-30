@@ -5,7 +5,12 @@ open Js_of_ocaml_tyxml.Tyxml_js.Html
 val close_modal : (unit -> unit) option ref
 val is_pause: unit -> bool
 
+val lost_menu_node: Js_of_ocaml.Dom_html.divElement Js_of_ocaml.Js.t option ref
+
+val close_lost_menu: unit -> unit
+
 
 val on_retry : (unit -> unit) ref
 val on_start : (unit -> unit) ref
-val pause_menu: #Js_of_ocaml.Dom.node Js_of_ocaml.Js.t -> unit
+val pause_menu:	unit -> unit
+val lost_menu:	unit -> unit
