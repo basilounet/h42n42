@@ -352,7 +352,7 @@ let pause_menu () : unit =
 		close_modal := None;
 		!on_start ()
 		in
-		async (fun () ->
+		Lwt.async (fun () ->
 			pick [
 				(Lwt_js_events.click close_node >|= fun _ -> ());
 				external_close;

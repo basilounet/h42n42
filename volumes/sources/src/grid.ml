@@ -25,7 +25,6 @@ let create (): t =
 	let cols		= cell_from_size ~safe_space Params.simulation.width in
 	let rows		= cell_from_size ~safe_space Params.simulation.height in
 	let data		= Array.init (cols * rows) (fun _ -> []) in
-	(* Printf.printf "Size of grid: %d x %d\n" cols rows; *)
 	{ cols; rows; data; }
 
 

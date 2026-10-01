@@ -25,7 +25,6 @@ let style_string (creet: t) : string =
 	let diameter = creet.radius *. 2. *. size_factor in
 	let screen_x = creet.pos.x /. Params.simulation.width *. 100. in
 	let screen_y = creet.pos.y /. Params.simulation.height *. 100. in
-	(* Printf.printf "diamter: %.1f\n" diameter; *)
 	Printf.sprintf "
 		position: absolute; left: %fvw; top: %fvh;
 		width: %.1fvw; height: %.1fvw; user-select: none;

@@ -347,7 +347,6 @@ let give_birth () =
     | t -> (* Triggers every birth_upgrade seconds *)
     t := !t -. birth_upgrade_time;
     Params.simulation.birth_interval#set ((Params.simulation.birth_interval#get ()) +. 1.)
-    (* Printf.printf "New birth_interval: %f\n" @@ Params.simulation.birth_interval#get (); *)
   end;
   time_since_last_birth := !time_since_last_birth +. Params.simulation.delta_time#get ();
 	match time_since_last_birth with
@@ -362,7 +361,6 @@ let last_time : float ref = ref 0.
 let running : bool ref = ref false
 
 let cleanup () : unit =
-	(* let body = Dom_html.document##.body in *)
 	last_time := Unix.gettimeofday ();
 	Grid.clear ();
 	Hashtbl.to_seq_values Params.simulation.troop |> Seq.iter (fun creet ->
@@ -370,7 +368,6 @@ let cleanup () : unit =
 		);
 	Hashtbl.clear Params.simulation.troop;
 	Statistics.reset ();
-	(* remove creet DOM nodes, reset stats, stop timers, etc. *)
 	()
 
 let rec simulation_loop () : unit Lwt.t =

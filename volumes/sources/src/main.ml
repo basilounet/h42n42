@@ -1,7 +1,4 @@
 open Js_of_ocaml
-open Js_of_ocaml_tyxml.Tyxml_js.Html
-open Js_of_ocaml_lwt
-open Vector
 
 let () =
 	Random.self_init ();
