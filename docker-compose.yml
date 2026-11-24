@@ -1,24 +1,6 @@
 services:
-    builder:
-        build: dockers/builder
-        container_name: builder
-        restart: always
-        init: true
-        networks:
-            h42n42:
-        volumes:
-            - sources:/home/opam/app/src
-            - static:/home/opam/app/static
-            - build:/home/opam/app/src/_build
-        healthcheck:
-            test: "exit 0"
-            interval: 5s
-            timeout: 1m
-            retries: 3
-
-
     server:
-        build: dockers/server
+        build: .
         container_name: server
         restart: always
         init: true
@@ -26,35 +8,11 @@ services:
             - "8080:8080"
         networks:
             h42n42:
-        volumes:
-            - static:/home/node/app/static
-            - build:/home/node/app/src/_build
         healthcheck:
             test: "exit 0"
             interval: 5s
             timeout: 1m
             retries: 3
-
-
-volumes:
-    sources:
-        driver: local
-        driver_opts:
-            type: none
-            device: "volumes/sources"
-            o: bind
-    build:
-        driver: local
-        driver_opts:
-            type: none
-            device: "volumes/sources/_build"
-            o: bind
-    static:
-        driver: local
-        driver_opts:
-            type: none
-            device: "volumes/static"
-            o: bind
 
 
 networks:
